@@ -6,11 +6,12 @@
 #define SNOOZRAFT2_NODE_H
 
 #include <map>
-#include <nlohmann/json.hpp>
+#include <vector>
+#include <yaml-cpp/yaml.h>
+#include <zmq.hpp>
+#include "peer.h"
 
 namespace snooz {
-
-class Peer;
 
 ///
 /// A node in the distributed network. Follow ZMQ pattern:
@@ -22,21 +23,23 @@ class Peer;
 ///
 class Node {
 public:
-    explicit Node(nlohmann::json config);
+    Node(std::vector<std::string> bootstraps, std::string port);
 
     // Start polling messages + managing timeouts
     void start();
 private:
+    zmq::context_t zmq_context_{1};
+    zmq::socket_t server_{zmq_context_, ZMQ_ROUTER};
 
     // Port of zmq router. Will bind to this port and listen incoming messages
     std::string port_;
 
     // If it is a bootstrap node, should not try to send message to another bootstrap or itself. Chill here.
-    bool is_bootstrap_;
+    std::vector<std::string> bootstrap_nodes_;
 
     // maintain a address -> Peer map of other peers in the network.
     std::map<std::string, Peer> peers_;
-
+    std::vector<std::string> peers_addresses_;
 };
 
 }

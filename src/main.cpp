@@ -5,6 +5,10 @@
 #include <vector>
 #include <chrono>
 
+#include "node.h"
+
+#include <iostream>
+
 using namespace std::literals;
 
 void client_thread(int i) {
@@ -21,40 +25,23 @@ void client_thread(int i) {
 }
 
 
-int main() {
+int main(int argc, char** argv) {
 
-    zmq::context_t context{1};
-    zmq::socket_t router{context, ZMQ_ROUTER};
-    router.bind("tcp://*:5555");
-
-    std::vector<std::thread> client_threads;
-    client_threads.reserve(10);
-    for (int i = 0; i < 10; i++) {
-        client_threads.emplace_back(client_thread, i);
+    if (argc < 3) {
+        std::cerr << "Usage: " << argv[0] << " <PORT> <BOOTSTRAP_PORT>\n";
+        return 1;
     }
 
-    std::vector<std::string> client_ids;
+    std::string bootstrap_port{argv[2]};
+    std::string port{argv[1]};
 
-    while (true) {
-        // router always append the address of the client in front of the actual message.
-        auto address = snooz::s_recv(router);
-        auto content = snooz::s_recv(router);
-        auto id = snooz::s_recv(router);
-
-        client_ids.push_back(id);
-        std::cout << "Received " << content << " from " << address << std::endl;
-
-        snooz::s_sendmore(router, address);
-        snooz::s_send(router, snooz::join(client_ids, ","));
-
-        if (client_ids.size() == 10) {
-            break;
-        }
+    std::vector<std::string> bootstraps;
+    if (bootstrap_port != "0") {
+        bootstraps.push_back("tcp://localhost:" + bootstrap_port);
     }
+    snooz::Node node{bootstraps, port};
 
-    for (auto& t : client_threads) {
-        t.join();
-    }
+    node.start();
 
     return 0;
 }

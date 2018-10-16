@@ -16,10 +16,13 @@ constexpr static int DISCONNECTED_TIMEOUT_SEC{30};
 class Peer {
 public:
 
-    Peer(zmq::context_t& ctx, std::string address);
+    Peer(zmq::context_t& ctx, std::string address, std::string bootstrap_name="");
 
     /// Need to be called so that the socket will connect to the external peer
     void connect();
+
+    void send(std::string msg);
+    void send_multipart(const std::vector<std::string>& msg);
 
     /// Will extend the deadline_. Should be called whenever we receive a message from this peer.
     void reset_deadline(int seconds=DISCONNECTED_TIMEOUT_SEC);
