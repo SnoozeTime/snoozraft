@@ -6,3 +6,4 @@ function (add_test test_class)
 endfunction()
 
 add_test(string_utils_test)
+add_test(peer_test)
