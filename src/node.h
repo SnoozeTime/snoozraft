@@ -9,6 +9,7 @@
 #include <vector>
 #include <zmq.hpp>
 #include "peer.h"
+#include "config.h"
 
 namespace snooz {
 
@@ -22,7 +23,7 @@ namespace snooz {
 ///
 class Node {
 public:
-    Node(std::vector<std::string> bootstraps, std::string port);
+    Node(JsonConfig config);
 
     // Start polling messages + managing timeouts
     void start();
@@ -30,11 +31,7 @@ private:
     zmq::context_t zmq_context_{1};
     zmq::socket_t server_{zmq_context_, ZMQ_ROUTER};
 
-    // Port of zmq router. Will bind to this port and listen incoming messages
-    std::string port_;
-
-    // If it is a bootstrap node, should not try to send message to another bootstrap or itself. Chill here.
-    std::vector<std::string> bootstrap_nodes_;
+    JsonConfig conf_;
 
     // maintain a address -> Peer map of other peers in the network.
     std::map<std::string, Peer> peers_;

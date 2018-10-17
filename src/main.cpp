@@ -27,21 +27,13 @@ void client_thread(int i) {
 
 int main(int argc, char** argv) {
 
-    if (argc < 3) {
-        std::cerr << "Usage: " << argv[0] << " <PORT> <BOOTSTRAP_PORT>\n";
+    if (argc < 2) {
+        std::cerr << "Usage: " << argv[0] << " <CONFIG FILE>\n";
         return 1;
     }
 
-    std::string bootstrap_port{argv[2]};
-    std::string port{argv[1]};
-
-    std::vector<std::string> bootstraps;
-    if (bootstrap_port != "0") {
-        bootstraps.push_back("tcp://localhost:" + bootstrap_port);
-    }
-    snooz::Node node{bootstraps, port};
-
-    node.start();
+    snooz::JsonConfig conf = snooz::JsonConfig::load(argv[1]);
+    snooz::Node node{conf};node.start();
 
     return 0;
 }

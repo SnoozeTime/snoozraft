@@ -1,0 +1,13 @@
+{
+    "node": {
+	"port": "5556"
+    },
+    "membership": {
+	"bootstrap_nodes": [
+	    {
+		"name": "BOOTSTRAP1",
+		"address": "tcp://localhost:5555"
+	    }],
+	"is_bootstrap": "N"
+    }
+}

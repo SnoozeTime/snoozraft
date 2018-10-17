@@ -15,25 +15,25 @@ using std::literals::operator""ms;
 
 namespace snooz {
 
-Node::Node(std::vector<std::string> bootstraps, std::string port):
-    bootstrap_nodes_(std::move(bootstraps)),
-    port_{std::move(port)} {
+Node::Node(JsonConfig conf):
+    conf_{std::move(conf)} {
 }
 
 void Node::start() {
     std::stringstream ss;
-    ss << "tcp://*:" << port_;
+    ss << "tcp://*:" << conf_.port();
     std::cout << "Will bind to: " << ss.str() << std::endl;
     server_.bind(ss.str());
 
     // Now say hello to everybody.
-    for (const auto& bootstrap : bootstrap_nodes_) {
-        // The key must be the same as the one the router will create. To do so, each bootstrap nodes have to set
-        // an identity for their dealers.
-        std::cout << "Will connect to bootstrap node: " << bootstrap << std::endl;
-        peers_.emplace("BOOTSTRAP", Peer{zmq_context_, bootstrap});
-        peers_.at("BOOTSTRAP").connect();
-        peers_.at("BOOTSTRAP").send("tcp://localhost:" + port_);
+    if (!conf_.is_bootstrap()) {
+        for (const auto& bootstrap : conf_.bootstrap_nodes()) {
+            // The key must be the same as the one the router will create. To do so, each bootstrap nodes have to set
+            // an identity for their dealers.
+            peers_.emplace(bootstrap.name, Peer{zmq_context_, bootstrap.address});
+            peers_.at(bootstrap.name).connect();
+            peers_.at(bootstrap.name).send("tcp://localhost:" + conf_.port());
+        }
     }
 
     bool should_continue = true;
@@ -52,7 +52,7 @@ void Node::start() {
                 // It's a new peer. We need to add it.
                 // If the node is a bootstrap, we need to set the identity of the dealer socket so that the other nodes
                 // that will receive the message can find it in their peers_ map.
-                std::string identity = bootstrap_nodes_.empty() ? "BOOTSTRAP" : "";
+                std::string identity = conf_.is_bootstrap() ? conf_.bootstrap_name().value() : ""; // Btw, this should always be o.k. as we do the validation in config object
                 peers_.emplace(addr, Peer{zmq_context_, content, identity});
                 peers_addresses_.push_back(content);
                 peers_.at(addr).connect();
