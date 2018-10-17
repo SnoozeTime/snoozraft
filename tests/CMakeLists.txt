@@ -7,3 +7,4 @@ endfunction()
 
 add_test(string_utils_test)
 add_test(peer_test)
+add_test(config_test)

@@ -7,7 +7,6 @@
 
 #include <map>
 #include <vector>
-#include <yaml-cpp/yaml.h>
 #include <zmq.hpp>
 #include "peer.h"
 

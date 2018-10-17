@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.10)
 project(snoozraft2)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -15,3 +15,6 @@ conan_basic_setup()
 
 add_subdirectory(src)
 add_subdirectory(tests)
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources/
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
