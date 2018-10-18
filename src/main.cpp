@@ -1,5 +1,5 @@
 #include <iostream>
-#include "zmq_helpers.h"
+#include "zmq/zmq_helpers.h"
 #include "string_utils.h"
 #include <thread>
 #include <vector>

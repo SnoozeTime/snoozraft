@@ -6,7 +6,7 @@
 #define SNOOZRAFT2_PEER_H
 
 #include <chrono>
-#include "zmq_helpers.h"
+#include "zmq/zmq_helpers.h"
 
 namespace snooz {
 

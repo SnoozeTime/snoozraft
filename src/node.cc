@@ -8,9 +8,9 @@
 #include <iostream>
 #include <chrono>
 
-#include "zmq_helpers.h"
+#include "zmq/zmq_helpers.h"
 #include "string_utils.h"
-
+#include "zmq/zmq_loop.h"
 using std::literals::operator""ms;
 
 namespace snooz {
@@ -40,37 +40,39 @@ void Node::start() {
     zmq::pollitem_t items [] = {
             {(void*) server_, 0, ZMQ_POLLIN, 0}
     };
-    while (should_continue) {
 
-        zmq::poll(items, 1, 1000ms);
+    ZmqLoop loop;
+    loop.add_zmq_socket(server_, [this]() {
+        // TODO Define protocol here.
+        auto addr = snooz::s_recv(server_);
+        auto content = snooz::s_recv(server_);
 
-        if (items[0].revents & ZMQ_POLLIN) {
-            auto addr = snooz::s_recv(server_);
-            auto content = snooz::s_recv(server_);
+        if (peers_.find(addr) == peers_.end()) {
+            // It's a new peer. We need to add it.
+            // If the node is a bootstrap, we need to set the identity of the dealer socket so that the other nodes
+            // that will receive the message can find it in their peers_ map.
+            std::string identity = conf_.is_bootstrap() ? conf_.bootstrap_name().value() : ""; // Btw, this should always be o.k. as we do the validation in config object
+            peers_.emplace(addr, Peer{zmq_context_, content, identity});
+            peers_addresses_.push_back(content);
+            peers_.at(addr).connect();
 
-            if (peers_.find(addr) == peers_.end()) {
-                // It's a new peer. We need to add it.
-                // If the node is a bootstrap, we need to set the identity of the dealer socket so that the other nodes
-                // that will receive the message can find it in their peers_ map.
-                std::string identity = conf_.is_bootstrap() ? conf_.bootstrap_name().value() : ""; // Btw, this should always be o.k. as we do the validation in config object
-                peers_.emplace(addr, Peer{zmq_context_, content, identity});
-                peers_addresses_.push_back(content);
-                peers_.at(addr).connect();
-
-                // Need to tell all the peers that we received a new peer connection.
-                for (auto &peers : peers_) {
-                    peers.second.send(snooz::join(peers_addresses_, ","));
-                }
-
-            } else {
-                peers_.at(addr).reset_deadline();
+            // Need to tell all the peers that we received a new peer connection.
+            for (auto &peers : peers_) {
+                peers.second.send(snooz::join(peers_addresses_, ","));
             }
 
-            std::cout << content << std::endl;
         } else {
-            std::cout << "timeout\n";
+            peers_.at(addr).reset_deadline();
         }
-    }
+
+        std::cout << content << std::endl;
+    });
+
+    loop.add_timeout(1000ms, []() {
+        std::cout << "timeout\n";
+    });
+
+    loop.run();
 }
 
 }

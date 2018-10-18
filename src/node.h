@@ -23,7 +23,7 @@ namespace snooz {
 ///
 class Node {
 public:
-    Node(JsonConfig config);
+    explicit Node(JsonConfig config);
 
     // Start polling messages + managing timeouts
     void start();
