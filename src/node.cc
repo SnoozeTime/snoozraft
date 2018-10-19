@@ -45,8 +45,12 @@ void Node::start() {
         handle_message(message);
     });
 
-    loop.add_timeout(1000ms, []() {
-       // std::cout << "timeout\n";
+    // TODO need to make this configurable
+    loop.add_timeout(5000ms, [this]() {
+        send_heartbeat();
+    });
+    loop.add_timeout(10000ms, [this]() {
+        reap_dead_bodies();
     });
 
     loop.run();
@@ -89,6 +93,8 @@ void Node::handle_message(const ZmqMessage& message) {
 
     if (type == "LIST_PEERS") {
         handle_peer_list(message);
+    } else if (type == "HEARTBEAT") {
+        std::cout << "Received hb from " << addr << std::endl;
     }
 
     peers_.at(addr).reset_deadline();
@@ -116,6 +122,30 @@ void Node::handle_peer_list(const snooz::ZmqMessage &message) {
             add_peer(frames[i]);
         }
     }
+}
+
+void Node::send_heartbeat() {
+    ZmqMessage hb{"HEARTBEAT", "Hi!"};
+
+    for (auto &entry : peers_) {
+        entry.second.send(hb);
+    }
+}
+
+void Node::reap_dead_bodies() {
+    std::cout << "IT IS TIME TO REAP!\n";
+    std::vector<std::string> to_reap;
+    for (auto& entry: peers_) {
+        if (!entry.second.is_alive()) {
+            to_reap.push_back(entry.first);
+        }
+    }
+
+    for (auto& addr: to_reap) {
+        std::cout << "Will reap " << addr << "... Sayonara.\n";
+        peers_.erase(addr);
+    }
+
 }
 
 

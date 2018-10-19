@@ -42,6 +42,9 @@ private:
     // This is sent to all peers to say "I AM ALIVE"
     void send_heartbeat();
 
+    // Garbage collection for dead peers.
+    void reap_dead_bodies();
+
     zmq::context_t zmq_context_{1};
     zmq::socket_t server_{zmq_context_, ZMQ_ROUTER};
 
