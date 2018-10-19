@@ -11,12 +11,15 @@
 #include "zmq/zmq_helpers.h"
 #include "string_utils.h"
 #include "zmq/zmq_loop.h"
+#include "zmq/message.h"
+
 using std::literals::operator""ms;
 
 namespace snooz {
 
 Node::Node(JsonConfig conf):
-    conf_{std::move(conf)} {
+    conf_{std::move(conf)},
+    my_address_{"tcp://" + conf_.host() + ":" + conf_.port()}{
 }
 
 void Node::start() {
@@ -30,49 +33,90 @@ void Node::start() {
         for (const auto& bootstrap : conf_.bootstrap_nodes()) {
             // The key must be the same as the one the router will create. To do so, each bootstrap nodes have to set
             // an identity for their dealers.
-            peers_.emplace(bootstrap.name, Peer{zmq_context_, bootstrap.address});
-            peers_.at(bootstrap.name).connect();
-            peers_.at(bootstrap.name).send("tcp://localhost:" + conf_.port());
+            add_peer(bootstrap.address);
+            ZmqMessage join_message{"JOIN", my_address_};
+            peers_.at(bootstrap.address).send(join_message);
         }
     }
 
-    bool should_continue = true;
-    zmq::pollitem_t items [] = {
-            {(void*) server_, 0, ZMQ_POLLIN, 0}
-    };
-
     ZmqLoop loop;
     loop.add_zmq_socket(server_, [this]() {
-        // TODO Define protocol here.
-        auto addr = snooz::s_recv(server_);
-        auto content = snooz::s_recv(server_);
-
-        if (peers_.find(addr) == peers_.end()) {
-            // It's a new peer. We need to add it.
-            // If the node is a bootstrap, we need to set the identity of the dealer socket so that the other nodes
-            // that will receive the message can find it in their peers_ map.
-            std::string identity = conf_.is_bootstrap() ? conf_.bootstrap_name().value() : ""; // Btw, this should always be o.k. as we do the validation in config object
-            peers_.emplace(addr, Peer{zmq_context_, content, identity});
-            peers_addresses_.push_back(content);
-            peers_.at(addr).connect();
-
-            // Need to tell all the peers that we received a new peer connection.
-            for (auto &peers : peers_) {
-                peers.second.send(snooz::join(peers_addresses_, ","));
-            }
-
-        } else {
-            peers_.at(addr).reset_deadline();
-        }
-
-        std::cout << content << std::endl;
+        auto message = receive_message(server_);
+        handle_message(message);
     });
 
     loop.add_timeout(1000ms, []() {
-        std::cout << "timeout\n";
+       // std::cout << "timeout\n";
     });
 
     loop.run();
 }
+
+
+// Will route message to correct handler.
+void Node::handle_message(const ZmqMessage& message) {
+
+    // Address is always first.
+    const auto& frames = message.frames();
+
+    /// ADDRESS | TYPE | CONTENT+
+    assert(frames.size() >= 3);
+    auto addr = frames[0];
+    auto type = frames[1];
+
+    std::cout << "Handle message type " << type << std::endl;
+
+    // Always do that. If the peer already exists, we do nothing. If it does not, we will add it
+    if (peers_.find(addr) == peers_.end()) {
+
+        std::cout << "will add new peer. Address is " << addr << " : " << frames[2] << std::endl;
+        // It's a new peer. We need to add it.
+        // If the node is a bootstrap, we need to set the identity of the dealer socket so that the other nodes
+        // that will receive the message can find it in their peers_ map.
+        add_peer(addr);
+
+        if (type == "JOIN") {
+            // Need to tell all the peers that we received a new peer connection.
+            for (auto &peers : peers_) {
+                ZmqMessage list_message{"LIST_PEERS"};
+                for (auto& paddr: peers_addresses_) {
+                    list_message.add_frame(paddr);
+                }
+                peers.second.send(list_message);
+            }
+        }
+    }
+
+    if (type == "LIST_PEERS") {
+        handle_peer_list(message);
+    }
+
+    peers_.at(addr).reset_deadline();
+}
+
+
+void Node::add_peer(const std::string& address) {
+
+    // It's a new peer. We need to add it.
+    // If the node is a bootstrap, we need to set the identity of the dealer socket so that the other nodes
+    // that will receive the message can find it in their peers_ map.
+    peers_.emplace(address, Peer{zmq_context_, address, my_address_});
+    peers_addresses_.push_back(address);
+    peers_.at(address).connect();
+}
+
+void Node::handle_peer_list(const snooz::ZmqMessage &message) {
+
+    std::cout << "HANDLE PEER LIST\n";
+    const auto& frames = message.frames();
+    for (int i = 2; i < frames.size(); i++) {
+        if (frames[i] != my_address_
+            && peers_.find(frames[i]) == peers_.end()) {
+            std::cout << "will add " << frames[i] << std::endl;
+            add_peer(frames[i]);
+        }
+    }
+}
+
 
 }

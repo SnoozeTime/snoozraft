@@ -47,6 +47,12 @@ public:
     }
 
     ///
+    /// \return host where this node is listening
+    std::string host() const {
+        return impl_.host();
+    }
+
+    ///
     /// \return port where this node is listening
     std::string port() const {
         return impl_.port();
@@ -74,6 +80,7 @@ Config<ConfigImpl> Config<ConfigImpl>::load(const std::string &filename) {
 //    {
 //
 //        "node": {
+//            "host": "localhost
 //            "port": "5556"
 //        },
 //
@@ -139,6 +146,12 @@ public:
     /// \return port where this node is listening
     std::string port() const {
         return json_["node"]["port"];
+    }
+
+    ///
+    /// \return host where this node is listening
+    std::string host() const {
+        return json_["node"]["host"];
     }
 
 private:

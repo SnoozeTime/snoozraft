@@ -7,14 +7,14 @@
 
 namespace snooz {
 
-Peer::Peer(zmq::context_t& ctx, std::string address, std::string bootstrap_name):
+Peer::Peer(zmq::context_t& ctx, std::string address, std::string my_address):
     deadline_{std::chrono::system_clock::now() + std::chrono::seconds{DISCONNECTED_TIMEOUT_SEC}},
     address_{std::move(address)},
     dealer_(ctx, ZMQ_DEALER)
 {
-    if (!bootstrap_name.empty()) {
-        dealer_.setsockopt(ZMQ_IDENTITY, bootstrap_name.c_str(), bootstrap_name.size());
-    }
+
+    dealer_.setsockopt(ZMQ_IDENTITY, my_address.c_str(), my_address.size());
+
 };
 
 void Peer::connect() {
@@ -26,19 +26,12 @@ void Peer::send(std::string msg) {
     s_send(dealer_, msg);
 }
 
-void Peer::send_multipart(const std::vector<std::string> &msg) {
-    if (msg.empty()) {
-        return;
-    }
+void Peer::send(const ZmqMessage& msg) {
+    send_message(dealer_, msg);
+}
 
-    if (msg.size() == 1) {
-        send(msg[0]);
-    } else {
-        for (int i = 0; i < msg.size() - 1; i++) {
-            s_sendmore(dealer_, msg[i]);
-        }
-        s_send(dealer_, msg.back());
-    }
+std::string Peer::address() const {
+    return address_;
 }
 
 bool Peer::is_alive() const {

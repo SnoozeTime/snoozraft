@@ -1,6 +1,7 @@
 {
     "node": {
-	"port": "5555"
+		"host": "localhost",
+		"port": "5555"
     },
     "membership": {
 	"bootstrap_nodes": [
