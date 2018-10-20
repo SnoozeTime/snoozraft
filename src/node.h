@@ -28,6 +28,7 @@ public:
 
     // Start polling messages + managing timeouts
     void start();
+
 private:
 
     // Will route message to correct handler.

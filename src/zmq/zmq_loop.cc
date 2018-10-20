@@ -49,6 +49,23 @@ bool Timer::is_recurrent() const {
     return is_recurrent_;
 }
 
+ZmqLoop::ZmqLoop(zmq::context_t *context):
+    context_(context),
+    shutdown_socket_{*context, ZMQ_PULL}{
+    // Hum what happens if multiple loop?
+    shutdown_socket_.bind("inproc://zmq_loop");
+
+    add_zmq_socket(shutdown_socket_, [this] () {
+        should_run = false;
+    });
+}
+
+void ZmqLoop::shutdown() {
+    zmq::socket_t to_shutdown{*context_, ZMQ_PUSH};
+    to_shutdown.connect("inproc://zmq_loop");
+    s_send(to_shutdown, "bye bye");
+}
+
 void ZmqLoop::add_zmq_socket(zmq::socket_t &socket, SocketCallback cb) {
     registered_sockets_.insert(std::make_pair(
             (void*) socket,
@@ -95,8 +112,7 @@ milliseconds ZmqLoop::next_timeout() const {
 
 void ZmqLoop::run() {
 
-    // TODO break this loop with a listening socket.
-    while (true) {
+    while (should_run) {
 
         try {
             int count = zmq::poll(&poll_items_[0], poll_items_.size(), next_timeout());

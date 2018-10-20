@@ -67,6 +67,8 @@ private:
 class ZmqLoop {
 public:
 
+    explicit ZmqLoop(zmq::context_t *context);
+
     /// Add a listener (zmq::socket_t) to the loop
     ///
     /// \param socket Socket to listen. Should not be deleted before removed from the loop
@@ -85,11 +87,17 @@ public:
     /// Main function of the loop. The loop itself. It is a blocking call
     void run();
 
+    // Stop the loop. It is connecting to the shutdown socket and BAM.
+    void shutdown();
 
 private:
 
     void build_pollset();
     std::chrono::milliseconds next_timeout() const;
+
+    zmq::context_t *context_;
+    zmq::socket_t shutdown_socket_;
+    bool should_run{true};
 
 
     // The real mapping of socket to listen TO callback to call

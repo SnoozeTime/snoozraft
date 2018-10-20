@@ -39,7 +39,7 @@ void Node::start() {
         }
     }
 
-    ZmqLoop loop;
+    ZmqLoop loop{&zmq_context_};
     loop.add_zmq_socket(server_, [this]() {
         auto message = receive_message(server_);
         handle_message(message);
