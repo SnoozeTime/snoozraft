@@ -4,12 +4,9 @@
 		"port": "5555"
     },
     "membership": {
-	"bootstrap_nodes": [
-	    {
-		"name": "BOOTSTRAP1",
-		"address": "tcp://localhost:5555"
-	    }],
-	"is_bootstrap": "Y",
-	"name": "BOOTSTRAP1"
+      "bootstrap_nodes": [
+          "tcp://localhost:5555"
+          ],
+      "is_bootstrap": "Y"
     }
 }

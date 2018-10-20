@@ -33,9 +33,9 @@ void Node::start() {
         for (const auto& bootstrap : conf_.bootstrap_nodes()) {
             // The key must be the same as the one the router will create. To do so, each bootstrap nodes have to set
             // an identity for their dealers.
-            add_peer(bootstrap.address);
+            add_peer(bootstrap);
             ZmqMessage join_message{"JOIN", my_address_};
-            peers_.at(bootstrap.address).send(join_message);
+            peers_.at(bootstrap).send(join_message);
         }
     }
 

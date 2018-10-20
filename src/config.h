@@ -15,11 +15,6 @@
 
 namespace snooz {
 
-struct BootstrapConfig {
-    std::string name;
-    std::string address;
-};
-
 template <class ConfigImpl>
 class Config {
 public:
@@ -30,7 +25,7 @@ public:
 
     ///
     /// \return vector of boostrap nodes for this network
-    std::vector<BootstrapConfig> bootstrap_nodes() const {
+    std::vector<std::string> bootstrap_nodes() const {
         return impl_.bootstrap_nodes();
     }
 
@@ -38,12 +33,6 @@ public:
     /// \return true if the node for this configuration is a boostrap node.
     bool is_bootstrap() const {
         return impl_.is_bootstrap();
-    }
-
-    ///
-    /// \return name of the bootstrap node or nothing if node is not a bootstrap.
-    std::experimental::optional<std::string> bootstrap_name() const {
-        return impl_.bootstrap_name();
     }
 
     ///
@@ -86,10 +75,8 @@ Config<ConfigImpl> Config<ConfigImpl>::load(const std::string &filename) {
 //
 //        "membership": {
 //            "bootstrap_nodes": [
-//            {
-//                "name": "BOOTSTRAP1",
-//                        "address": "tcp://localhost:5555"
-//            }],
+//              "tcp://localhost:5555"
+//            ],
 //            "is_bootstrap": "N"
 //        }
 //    }
@@ -98,61 +85,28 @@ class JsonConfigImpl {
 
 
 public:
-    JsonConfigImpl(nlohmann::json json): json_(std::move(json)) {}
+    explicit JsonConfigImpl(nlohmann::json json);
 
-    static JsonConfigImpl loadFromFile(const std::string& filename) {
-        std::ifstream fs{filename};
-        std::stringstream ss;
-        ss << fs.rdbuf();
+    static JsonConfigImpl loadFromFile(const std::string& filename);
 
-        auto json = nlohmann::json::parse(ss.str());
-        return JsonConfigImpl(json);
-    }
-
-    void validate() {}
+    void validate();
 
     ///
     /// \return vector of boostrap nodes for this network
-    std::vector<BootstrapConfig> bootstrap_nodes() const {
-
-        std::vector<BootstrapConfig> nodes;
-
-        for (auto& bt: json_["membership"]["bootstrap_nodes"]) {
-            BootstrapConfig conf = {bt["name"], bt["address"]};
-            nodes.push_back(conf);
-        }
-
-        return nodes;
-    }
+    std::vector<std::string> bootstrap_nodes() const;
 
     ///
     /// \return true if the node for this configuration is a boostrap node.
-    bool is_bootstrap() const {
-        return json_["membership"]["is_bootstrap"] == "Y";
-    }
-
-    ///
-    /// \return name of the bootstrap node or nothing if node is not a bootstrap.
-    std::experimental::optional<std::string> bootstrap_name() const {
-
-        auto maybe_name = json_["membership"].find("name");
-        if (maybe_name != json_["membership"].end()) {
-            return std::experimental::optional<std::string>((*maybe_name).get<std::string>());
-        }
-        return std::experimental::nullopt;
-    }
+    bool is_bootstrap() const;
 
     ///
     /// \return port where this node is listening
-    std::string port() const {
-        return json_["node"]["port"];
-    }
+    std::string port() const;
 
     ///
     /// \return host where this node is listening
-    std::string host() const {
-        return json_["node"]["host"];
-    }
+    std::string host() const;
+
 
 private:
     nlohmann::json json_;

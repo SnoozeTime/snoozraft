@@ -4,16 +4,9 @@
   },
   "membership": {
     "bootstrap_nodes": [
-      {
-        "name": "BOOTSTRAP1",
-        "address": "tcp://localhost:5555"
-      },
-      {
-        "name": "BOOTSTRAP2",
-        "address": "tcp://localhost:5556"
-      }
+      "tcp://localhost:5555",
+      "tcp://localhost:5556"
     ],
     "is_bootstrap": "Y",
-    "name": "BOOTSTRAP1"
   }
 }
