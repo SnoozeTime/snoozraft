@@ -22,10 +22,6 @@ void Peer::connect() {
     dealer_.connect(address_.c_str());
 }
 
-void Peer::send(std::string msg) {
-    s_send(dealer_, msg);
-}
-
 void Peer::send(const ZmqMessage& msg) {
     send_message(dealer_, msg);
 }

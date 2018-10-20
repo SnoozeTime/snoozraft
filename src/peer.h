@@ -26,7 +26,6 @@ public:
     /// Need to be called so that the socket will connect to the external peer
     void connect();
 
-    void send(std::string msg);
     void send(const ZmqMessage& msg);
 
     /// Will extend the deadline_. Should be called whenever we receive a message from this peer.
