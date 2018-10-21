@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include "peer.h"
+#include <boost/log/trivial.hpp>
 
 namespace snooz {
 
@@ -18,7 +19,7 @@ Peer::Peer(zmq::context_t& ctx, std::string address, std::string my_address):
 };
 
 void Peer::connect() {
-    std::cout << "Connect dealer to " << address_ << std::endl;
+    BOOST_LOG_TRIVIAL(info) << "Connect dealer to " << address_;
     dealer_.connect(address_.c_str());
 }
 

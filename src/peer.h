@@ -11,6 +11,7 @@
 
 namespace snooz {
 
+// TODO should be configurable
 constexpr static int DISCONNECTED_TIMEOUT_SEC{30};
 
 /// Represent other peers of the network.
