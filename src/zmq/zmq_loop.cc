@@ -75,14 +75,14 @@ void ZmqLoop::add_zmq_socket(zmq::socket_t &socket, SocketCallback cb) {
     build_pollset();
 }
 
-void ZmqLoop::add_timeout(milliseconds timeout, TimerCallback cb, bool is_recurrent) {
-    Timer t{timeout, std::move(cb), is_recurrent};
+Handle ZmqLoop::add_timeout(milliseconds timeout, TimerCallback cb, bool is_recurrent) {
+    auto h = timer_manager_.add(std::make_unique<Timer>(timeout, std::move(cb), is_recurrent));
+    timer_handles_.push_back(h);
+    return h;
+}
 
-    if (std::find(timers_.begin(), timers_.end(), t) == timers_.end()) {
-        timers_.push_back(std::move(t));
-    } else {
-        // TODO BOUM
-    }
+void ZmqLoop::remove_timeout(const Handle& to_remove) {
+    handles_to_remove_.push_back(to_remove);
 }
 
 void ZmqLoop::build_pollset() {
@@ -97,15 +97,19 @@ void ZmqLoop::build_pollset() {
 }
 
 milliseconds ZmqLoop::next_timeout() const {
-    if (timers_.empty()) {
+    if (timer_handles_.empty()) {
         return -1ms;
     }
 
     std::vector<milliseconds> remaining_times;
-    std::transform(timers_.begin(), timers_.end(), std::back_inserter(remaining_times), [] (const Timer& timer) {
-        return timer.remaining();
-    });
+    std::for_each(timer_handles_.begin(), timer_handles_.end(), [&remaining_times, this] (const auto& h) {
 
+        auto* t = timer_manager_.get(h);
+        if (t != nullptr) {
+            remaining_times.push_back(t->remaining());
+        }
+
+    });
 
     return *std::min_element(remaining_times.begin(), remaining_times.end());
 }
@@ -127,23 +131,35 @@ void ZmqLoop::run() {
             }
 
             // see if need to process any timer
-            auto it = timers_.begin();
-            while (it != timers_.end()) {
-                if (it->is_elapsed()) {
+            std::for_each(timer_handles_.begin(), timer_handles_.end(), [this] (const auto& h) {
 
-                    it->execute();
+                auto* t = timer_manager_.get(h);
+                if (t != nullptr) {
 
-                    if (it->is_recurrent()) {
-                        it->reset();
-                    } else {
-                        it = timers_.erase(it);
-                        continue;
+                    if (t->is_elapsed()) {
+                        t->execute();
+
+                        if (t->is_recurrent()) {
+                            t->reset();
+                        } else {
+                            handles_to_remove_.push_back(h);
+                        }
                     }
 
                 }
+            });
 
-                it++;
+            // TODO how efficient is that???
+            auto it = timer_handles_.begin();
+            while (it != timer_handles_.end()) {
+                if (std::find(handles_to_remove_.begin(), handles_to_remove_.end(), *it) != handles_to_remove_.end()) {
+                    timer_manager_.remove(*it);
+                    timer_handles_.erase(it);
+                } else {
+                    it++;
+                }
             }
+            handles_to_remove_.clear();
 
         } catch (const zmq::error_t& error) {
             std::cerr << error.what() << std::endl;

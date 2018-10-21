@@ -1,4 +1,11 @@
-add_library(snoozraft string_utils.cc zmq/zmq_helpers.cc node.cc peer.cc config.cc zmq/zmq_loop.cc zmq/message.cc)
+add_library(snoozraft string_utils.cc
+        zmq/zmq_helpers.cc
+        node.cc
+        peer.cc
+        config.cc
+        zmq/zmq_loop.cc
+        zmq/message.cc
+        )
 target_link_libraries(snoozraft zmq pthread  ${CONAN_LIBS})
 
 add_executable(main main.cpp)

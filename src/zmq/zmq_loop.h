@@ -10,6 +10,8 @@
 #include <memory>
 #include <unordered_map>
 
+#include "../handle.h"
+
 namespace snooz {
 
 using ZmqSocketPtr = void*;
@@ -81,8 +83,16 @@ public:
     /// \param timeout
     /// \param cb
     /// \param is_recurrent
-    void add_timeout(std::chrono::milliseconds timeout, TimerCallback cb, bool is_recurrent=true);
+    /// \return timer that was created
+    Handle add_timeout(std::chrono::milliseconds timeout, TimerCallback cb, bool is_recurrent=true);
 
+    /// Remove timer from the loop. It will only be removed at the end of a loop so the callback
+    /// might be executed once before it is actually removed from the loop.
+    ///
+    /// TODO Fix that. Can add a "is_active" field to the timer object
+    ///
+    /// \param to_remove handle to the timer to remove
+    void remove_timeout(const Handle& handle);
 
     /// Main function of the loop. The loop itself. It is a blocking call
     void run();
@@ -109,7 +119,9 @@ private:
     // callback to call for the pollitem which has the same index
     std::vector<SocketCallbackPtr> callbacks_;
 
-    std::vector<Timer> timers_;
+    HandleManager<Timer> timer_manager_;
+    std::vector<Handle> timer_handles_;
+    std::vector<Handle> handles_to_remove_;
 };
 
 }

@@ -8,7 +8,7 @@
 #include <vector>
 #include <string>
 #include <nlohmann/json.hpp>
-#include <experimental/optional>
+#include <boost/filesystem.hpp>
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -110,6 +110,12 @@ public:
 
 private:
     nlohmann::json json_;
+};
+
+
+/// Read the configuration from the environment
+class EnvConfigImpl {
+
 };
 
 using JsonConfig = Config<JsonConfigImpl>;
