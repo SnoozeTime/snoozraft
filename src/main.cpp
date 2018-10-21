@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    snooz::JsonConfig conf = snooz::JsonConfig::load(argv[1]);
+    snooz::JsonConfig conf = snooz::JsonConfig::load_from_file(argv[1]);
     snooz::Node node{conf};node.start();
 
     return 0;

@@ -48,7 +48,7 @@ public:
     }
 
     /// Load the configuration from a file
-    static Config<ConfigImpl> load(const std::string& filename);
+    static Config<ConfigImpl> load_from_file(const std::string& filename);
 
 private:
 
@@ -61,8 +61,8 @@ private:
 };
 
 template<class ConfigImpl>
-Config<ConfigImpl> Config<ConfigImpl>::load(const std::string &filename) {
-    return Config{ConfigImpl::loadFromFile(filename)};
+Config<ConfigImpl> Config<ConfigImpl>::load_from_file(const std::string &filename) {
+    return Config{ConfigImpl::load_from_file(filename)};
 }
 
 //
@@ -87,7 +87,7 @@ class JsonConfigImpl {
 public:
     explicit JsonConfigImpl(nlohmann::json json);
 
-    static JsonConfigImpl loadFromFile(const std::string& filename);
+    static JsonConfigImpl load_from_file(const std::string& filename);
 
     void validate();
 
@@ -115,10 +115,44 @@ private:
 
 /// Read the configuration from the environment
 class EnvConfigImpl {
+public:
 
+    constexpr static char HOST_ENV[] = "SNOOZ_HOST";
+    constexpr static char PORT_ENV[] = "SNOOZ_PORT";
+    constexpr static char IS_BOOTSTRAP_ENV[] = "SNOOZ_BOOTSTRAP";
+    constexpr static char BOOTSTRAP_NODES_ENV[] = "SNOOZ_BOOTSTRAP_NODES";
+
+    EnvConfigImpl();
+
+
+    void validate();
+
+    ///
+    /// \return vector of boostrap nodes for this network
+    std::vector<std::string> bootstrap_nodes() const;
+
+    ///
+    /// \return true if the node for this configuration is a boostrap node.
+    bool is_bootstrap() const;
+
+    ///
+    /// \return port where this node is listening
+    std::string port() const;
+
+    ///
+    /// \return host where this node is listening
+    std::string host() const;
+
+private:
+    // Comma separated.
+    std::vector<std::string> bootstrap_nodes_;
+    bool is_bootstrap_;
+    std::string port_;
+    std::string host_;
 };
 
 using JsonConfig = Config<JsonConfigImpl>;
+using EnvConfig = Config<EnvConfigImpl>;
 
 }
 
