@@ -1,0 +1,33 @@
+version: '3'
+
+networks:
+  snoozraft:
+
+services:
+  bootstrap1:
+    image: snoozraft:latest
+    environment:
+      SNOOZ_BOOTSTRAP: "Y"
+      SNOOZ_HOST: "boostrap1"
+      SNOOZ_PORT: "5678"
+      SNOOZ_BOOSTRAP_NODES: "bootstrap1:5678"
+    networks:
+      - snoozraft
+
+  peer1:
+    image: snoozraft:latest
+    environment:
+      SNOOZ_HOST: "peer1"
+      SNOOZ_PORT: "5678"
+      SNOOZ_BOOSTRAP_NODES: "bootstrap1:5678"
+    networks:
+    - snoozraft
+
+  peer2:
+    image: snoozraft:latest
+    environment:
+      SNOOZ_HOST: "peer2"
+      SNOOZ_PORT: "5678"
+      SNOOZ_BOOSTRAP_NODES: "bootstrap1:5678"
+    networks:
+      - snoozraft
