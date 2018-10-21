@@ -75,6 +75,10 @@ void ZmqLoop::add_zmq_socket(zmq::socket_t &socket, SocketCallback cb) {
     build_pollset();
 }
 
+void ZmqLoop::remove_zmq_socket(zmq::socket_t &socket) {
+    sockets_to_remove_.push_back((void*) socket);
+}
+
 Handle ZmqLoop::add_timeout(milliseconds timeout, TimerCallback cb, bool is_recurrent) {
     auto h = timer_manager_.add(std::make_unique<Timer>(timeout, std::move(cb), is_recurrent));
     timer_handles_.push_back(h);
@@ -117,6 +121,7 @@ milliseconds ZmqLoop::next_timeout() const {
 void ZmqLoop::run() {
 
     while (should_run) {
+
 
         try {
             int count = zmq::poll(&poll_items_[0], poll_items_.size(), next_timeout());
@@ -161,10 +166,26 @@ void ZmqLoop::run() {
             }
             handles_to_remove_.clear();
 
+            // TODO Same question as above?
+            bool has_removed = false;
+            for (auto sock : sockets_to_remove_) {
+                auto sit = registered_sockets_.find(sock);
+                if (sit != registered_sockets_.end()) {
+                    registered_sockets_.erase(sit);
+                    has_removed = true;
+                }
+            }
+            sockets_to_remove_.clear();
+
+            if (has_removed) {
+                build_pollset();
+            }
+
         } catch (const zmq::error_t& error) {
             std::cerr << error.what() << std::endl;
         }
 
     }
 }
+
 }

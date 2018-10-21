@@ -77,6 +77,10 @@ public:
     /// \param cb callback to execute when the socket has some pending messages
     void add_zmq_socket(zmq::socket_t& socket, SocketCallback cb);
 
+    /// Will remove the socket from the pollset.
+    ///
+    /// \param socket
+    void remove_zmq_socket(zmq::socket_t& socket);
 
     /// Add a timer to the loop
     ///
@@ -112,6 +116,7 @@ private:
 
     // The real mapping of socket to listen TO callback to call
     std::unordered_map<ZmqSocketPtr, SocketCallbackPtr> registered_sockets_;
+    std::vector<ZmqSocketPtr> sockets_to_remove_;
 
     // Next two are built by the build_pollset function
     // pollset to listen to.

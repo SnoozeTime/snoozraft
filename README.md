@@ -24,7 +24,7 @@ Not exhaustive list of things I want to implement. Will be updated from time to 
 - [ ] Create EnvConfig to read from environment variables
 - [X] Create wrapper for zmq::poll (ZmqLoop)
 - [X] Add timer to ZmqLoop
-- [ ] Complete ZmqLoop (remove objects)
+- [X] Complete ZmqLoop (remove objects)
 - [X] Send ping to all other peers
 - [X] Add peer reaper: when timeout, should check if some peers are not alive and KILL them.
 - [ ] Begin RAFT
