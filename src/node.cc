@@ -10,7 +10,6 @@
 
 #include "zmq/zmq_helpers.h"
 #include "string_utils.h"
-#include "zmq/zmq_loop.h"
 #include "zmq/message.h"
 #include <boost/log/trivial.hpp>
 
@@ -20,7 +19,9 @@ namespace snooz {
 
 Node::Node(Config conf):
     conf_{std::move(conf)},
-    my_address_{"tcp://" + conf_.host() + ":" + conf_.port()}{
+    my_address_{"tcp://" + conf_.host() + ":" + conf_.port()},
+    raft_{this}
+    {
 }
 
 void Node::start() {
@@ -42,23 +43,22 @@ void Node::start() {
         }
     }
 
-    ZmqLoop loop{&zmq_context_};
-    loop.add_zmq_socket(server_, [this]() {
+    loop_.add_zmq_socket(server_, [this]() {
         auto message = receive_message(server_);
         handle_message(message);
     });
 
     // TODO need to make this configurable
-    loop.add_timeout(5000ms, [this]() {
+    loop_.add_timeout(5000ms, [this]() {
         BOOST_LOG_TRIVIAL(debug) << "Heartbeat timeout";
         send_heartbeat();
     });
-    loop.add_timeout(10000ms, [this]() {
+    loop_.add_timeout(10000ms, [this]() {
         BOOST_LOG_TRIVIAL(debug) << "Peer garbage collector timeout";
         reap_dead_bodies();
     });
 
-    loop.run();
+    loop_.run();
 }
 
 
@@ -155,5 +155,8 @@ void Node::reap_dead_bodies() {
 
 }
 
+// TODO Maybe give loop directly to RaftFSM
+ZmqLoop& Node::loop() { return loop_;}
+std::map<std::string, Peer>& Node::peers() { return peers_; }
 
 }

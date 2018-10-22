@@ -8,9 +8,11 @@
 #include <map>
 #include <vector>
 #include <zmq.hpp>
+#include <zmq/zmq_loop.h>
 #include "peer.h"
 #include "config.h"
 #include "zmq/message.h"
+#include "raft/raft_fsm.h"
 
 namespace snooz {
 
@@ -28,6 +30,11 @@ public:
 
     // Start polling messages + managing timeouts
     void start();
+
+    // Give access to the loop. Used in our Raft
+    ZmqLoop& loop();
+
+    std::map<std::string, Peer>& peers();
 
 private:
 
@@ -47,7 +54,10 @@ private:
     void reap_dead_bodies();
 
     zmq::context_t zmq_context_{1};
+    ZmqLoop loop_{&zmq_context_};
+
     zmq::socket_t server_{zmq_context_, ZMQ_ROUTER};
+    RaftFSM raft_;
 
     Config conf_;
     std::string my_address_;
