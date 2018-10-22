@@ -17,11 +17,11 @@ connect to the network by sending a join request to them.
 
 Not exhaustive list of things I want to implement. Will be updated from time to time.
 
-- [ ] Better logging
+- [X] Better logging
 - [X] Frame protocol (ZmqMessage)
 - [ ] Finish configuration with validation
-- [ ] Add dockerfile
-- [ ] Create EnvConfig to read from environment variables
+- [X] Add dockerfile
+- [X] Create EnvConfig to read from environment variables
 - [X] Create wrapper for zmq::poll (ZmqLoop)
 - [X] Add timer to ZmqLoop
 - [X] Complete ZmqLoop (remove objects)
