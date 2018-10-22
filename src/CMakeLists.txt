@@ -6,6 +6,7 @@ add_library(snoozraft string_utils.cc
         zmq/zmq_loop.cc
         zmq/message.cc
         os.cc
+        protocol/message.cc
         raft/raft_fsm.cc
         raft/rpc.cc)
 target_link_libraries(snoozraft zmq pthread  ${CONAN_LIBS} ${Boost_LIBRARIES})
