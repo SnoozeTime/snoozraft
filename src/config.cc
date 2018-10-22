@@ -10,13 +10,13 @@
 namespace snooz {
 JsonConfigImpl::JsonConfigImpl(nlohmann::json json): json_(std::move(json)) {}
 
-JsonConfigImpl JsonConfigImpl::load_from_file(const std::string& filename) {
+JsonConfigImpl* JsonConfigImpl::load_from_file(const std::string& filename) {
     std::ifstream fs{filename};
     std::stringstream ss;
     ss << fs.rdbuf();
 
     auto json = nlohmann::json::parse(ss.str());
-    return JsonConfigImpl(json);
+    return new JsonConfigImpl(json);
 }
 
 void JsonConfigImpl::validate() {}
@@ -56,13 +56,18 @@ std::string JsonConfigImpl::host() const {
 // Configuration from environment variables. Easier to
 // use with Docker
 // ====================================================
+constexpr char EnvConfigImpl::HOST_ENV[];
+constexpr char EnvConfigImpl::PORT_ENV[];
+constexpr char EnvConfigImpl::IS_BOOTSTRAP_ENV[];
+constexpr char EnvConfigImpl::BOOTSTRAP_NODES_ENV[];
+
 EnvConfigImpl::EnvConfigImpl():
     port_(snooz::getenv(PORT_ENV)),
     host_(snooz::getenv(HOST_ENV)) {
 
     auto is_bootstrap_str = snooz::getenv(std::string(IS_BOOTSTRAP_ENV));
-    is_bootstrap_ = lower(is_bootstrap_str) == "y" || lower(is_bootstrap_str) == "true";
-
+    is_bootstrap_ = is_bootstrap_str == "Y" || is_bootstrap_str == "True";
+    std::cout << is_bootstrap_ << " from " << is_bootstrap_str << " - when lower " << lower(is_bootstrap_str) << std::endl;
     bootstrap_nodes_ = split(snooz::getenv(BOOTSTRAP_NODES_ENV), ",");
 }
 

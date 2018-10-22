@@ -10,7 +10,7 @@ std::string get_path(std::string rel) {
 }
 
 TEST(json_config, non_bootstrap) {
-    auto conf = snooz::JsonConfig::load(get_path("conf.json"));
+    auto conf = snooz::Config(snooz::JsonConfigImpl::load_from_file(get_path("conf.json")));
     auto nodes = conf.bootstrap_nodes();
 
     ASSERT_EQ(2, nodes.size());
@@ -22,7 +22,7 @@ TEST(json_config, non_bootstrap) {
 
 
 TEST(json_config, bootstrap) {
-    auto conf = snooz::JsonConfig::load(get_path("conf_bootstrap.json"));
+    auto conf = snooz::Config(snooz::JsonConfigImpl::load_from_file(get_path("conf_bootstrap.json")));
     auto nodes = conf.bootstrap_nodes();
 
     ASSERT_EQ(2, nodes.size());

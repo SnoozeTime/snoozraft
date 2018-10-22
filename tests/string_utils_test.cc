@@ -41,4 +41,7 @@ TEST(string_util, lower) {
 
     auto res2 = snooz::lower("");
     ASSERT_STREQ("", res2.c_str());
+
+    auto res3 = snooz::lower("Y");
+    ASSERT_STREQ("y", res3.c_str());
 }

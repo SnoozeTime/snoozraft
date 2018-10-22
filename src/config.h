@@ -12,58 +12,79 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <memory>
 
 namespace snooz {
 
-template <class ConfigImpl>
+
+class ConfigImpl {
+
+
+public:
+
+    virtual ~ConfigImpl() {}
+
+    virtual void validate() = 0;
+
+    ///
+    /// \return vector of boostrap nodes for this network
+    virtual std::vector<std::string> bootstrap_nodes() const = 0;
+
+    ///
+    /// \return true if the node for this configuration is a boostrap node.
+    virtual bool is_bootstrap() const = 0;
+
+    ///
+    /// \return port where this node is listening
+    virtual std::string port() const = 0;
+
+    ///
+    /// \return host where this node is listening
+    virtual std::string host() const = 0;
+};
+
 class Config {
 public:
 
-    explicit Config(ConfigImpl impl): impl_(std::move(impl)) {
+    explicit Config(ConfigImpl *impl): impl_(impl) {
         validate();
     }
 
     ///
     /// \return vector of boostrap nodes for this network
     std::vector<std::string> bootstrap_nodes() const {
-        return impl_.bootstrap_nodes();
+        return impl_->bootstrap_nodes();
     }
 
     ///
     /// \return true if the node for this configuration is a boostrap node.
     bool is_bootstrap() const {
-        return impl_.is_bootstrap();
+        return impl_->is_bootstrap();
     }
 
     ///
     /// \return host where this node is listening
     std::string host() const {
-        return impl_.host();
+        return impl_->host();
     }
 
     ///
     /// \return port where this node is listening
     std::string port() const {
-        return impl_.port();
+        return impl_->port();
     }
 
-    /// Load the configuration from a file
-    static Config<ConfigImpl> load_from_file(const std::string& filename);
 
 private:
 
 
     void validate() {
-        impl_.validate();
+        impl_->validate();
     }
 
-    ConfigImpl impl_;
+    std::unique_ptr<ConfigImpl> impl_;
 };
 
-template<class ConfigImpl>
-Config<ConfigImpl> Config<ConfigImpl>::load_from_file(const std::string &filename) {
-    return Config{ConfigImpl::load_from_file(filename)};
-}
 
 //
 //    {
@@ -81,31 +102,31 @@ Config<ConfigImpl> Config<ConfigImpl>::load_from_file(const std::string &filenam
 //        }
 //    }
 //
-class JsonConfigImpl {
+class JsonConfigImpl: public ConfigImpl {
 
 
 public:
     explicit JsonConfigImpl(nlohmann::json json);
 
-    static JsonConfigImpl load_from_file(const std::string& filename);
+    static JsonConfigImpl* load_from_file(const std::string& filename);
 
-    void validate();
+    void validate() override;
 
     ///
     /// \return vector of boostrap nodes for this network
-    std::vector<std::string> bootstrap_nodes() const;
+    std::vector<std::string> bootstrap_nodes() const override;
 
     ///
     /// \return true if the node for this configuration is a boostrap node.
-    bool is_bootstrap() const;
+    bool is_bootstrap() const override;
 
     ///
     /// \return port where this node is listening
-    std::string port() const;
+    std::string port() const override;
 
     ///
     /// \return host where this node is listening
-    std::string host() const;
+    std::string host() const override;
 
 
 private:
@@ -114,7 +135,7 @@ private:
 
 
 /// Read the configuration from the environment
-class EnvConfigImpl {
+class EnvConfigImpl: public ConfigImpl {
 public:
 
     constexpr static char HOST_ENV[] = "SNOOZ_HOST";
@@ -125,23 +146,23 @@ public:
     EnvConfigImpl();
 
 
-    void validate();
+    void validate() override;
 
     ///
     /// \return vector of boostrap nodes for this network
-    std::vector<std::string> bootstrap_nodes() const;
+    std::vector<std::string> bootstrap_nodes() const override;
 
     ///
     /// \return true if the node for this configuration is a boostrap node.
-    bool is_bootstrap() const;
+    bool is_bootstrap() const override;
 
     ///
     /// \return port where this node is listening
-    std::string port() const;
+    std::string port() const override;
 
     ///
     /// \return host where this node is listening
-    std::string host() const;
+    std::string host() const override;
 
 private:
     // Comma separated.
@@ -151,8 +172,6 @@ private:
     std::string host_;
 };
 
-using JsonConfig = Config<JsonConfigImpl>;
-using EnvConfig = Config<EnvConfigImpl>;
 
 }
 

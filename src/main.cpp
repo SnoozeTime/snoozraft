@@ -1,17 +1,76 @@
 #include <iostream>
 #include "node.h"
+#include <boost/program_options.hpp>
+#include <boost/log/trivial.hpp>
+#include <boost/log/utility/setup/console.hpp>
+
+#include <boost/log/core.hpp>
+#include <boost/log/trivial.hpp>
+#include <boost/log/expressions.hpp>
+#include <boost/log/sinks/text_file_backend.hpp>
+#include <boost/log/utility/setup/file.hpp>
+#include <boost/log/utility/setup/common_attributes.hpp>
+#include <boost/log/sources/severity_logger.hpp>
+#include <boost/log/sources/record_ostream.hpp>
+
+namespace logging = boost::log;
+namespace src = boost::log::sources;
+namespace sinks = boost::log::sinks;
 
 
+namespace po = boost::program_options;
+
+void init_logging() {
+    boost::log::add_console_log(std::cout,
+            boost::log::keywords::auto_flush = true,
+            boost::log::keywords::format = "[%TimeStamp%]: %Message%");
+}
 int main(int argc, char** argv) {
+    init_logging();
 
-    // TODO Add boost program options to choose what kind of config (from json/yaml file or from environment)
-    if (argc < 2) {
-        std::cerr << "Usage: " << argv[0] << " <CONFIG FILE>\n";
+    po::options_description desc("Command line options");
+    desc.add_options()
+            ("help", "print help")
+            ("config_type", po::value<std::string>(), "where to load config - Can be ENV or JSON")
+            ("config_file", po::value<std::string>(), "File where the configuration is store. Only in case of JSON");
+
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);
+
+    if (vm.count("help")) {
+        BOOST_LOG_TRIVIAL(info) << desc << "\n";
         return 1;
     }
 
-    snooz::JsonConfig conf = snooz::JsonConfig::load_from_file(argv[1]);
-    snooz::Node node{conf};node.start();
+    if (vm.count("config_type") == 0) {
+        BOOST_LOG_TRIVIAL(error) << "config_type is not set";
+        return 1;
+    }
+
+    auto config_type = vm["config_type"].as<std::string>();
+    if (config_type != "JSON" && config_type != "ENV") {
+        BOOST_LOG_TRIVIAL(error) << "config_type should be either JSON or ENV, got " << config_type << " instead.";
+        return 1;
+    }
+
+    if (config_type == "JSON" && vm.count("config_file") == 0) {
+        BOOST_LOG_TRIVIAL(error) << "JSON config should specify configuration file";
+        return 1;
+    }
+
+    snooz::ConfigImpl* impl;
+    if (config_type == "ENV") {
+        // New'd but Config object will destruct it!
+        impl = new snooz::EnvConfigImpl();
+    } else if (config_type == "JSON" ){
+        impl = snooz::JsonConfigImpl::load_from_file(vm["config_file"].as<std::string>());
+    } else {
+        assert(false);
+    }
+
+    snooz::Config conf{impl};
+    snooz::Node node{std::move(conf)};node.start();
 
     return 0;
 }

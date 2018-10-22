@@ -18,7 +18,7 @@ using std::literals::operator""ms;
 
 namespace snooz {
 
-Node::Node(JsonConfig conf):
+Node::Node(Config conf):
     conf_{std::move(conf)},
     my_address_{"tcp://" + conf_.host() + ":" + conf_.port()}{
 }

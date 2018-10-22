@@ -1,4 +1,4 @@
-version: '3'
+version: '2'
 
 networks:
   snoozraft:
@@ -10,7 +10,7 @@ services:
       SNOOZ_BOOTSTRAP: "Y"
       SNOOZ_HOST: "boostrap1"
       SNOOZ_PORT: "5678"
-      SNOOZ_BOOSTRAP_NODES: "bootstrap1:5678"
+      SNOOZ_BOOTSTRAP_NODES: "tcp://bootstrap1:5678"
     networks:
       - snoozraft
 
@@ -19,7 +19,7 @@ services:
     environment:
       SNOOZ_HOST: "peer1"
       SNOOZ_PORT: "5678"
-      SNOOZ_BOOSTRAP_NODES: "bootstrap1:5678"
+      SNOOZ_BOOTSTRAP_NODES: "tcp://bootstrap1:5678"
     networks:
     - snoozraft
 
@@ -28,6 +28,6 @@ services:
     environment:
       SNOOZ_HOST: "peer2"
       SNOOZ_PORT: "5678"
-      SNOOZ_BOOSTRAP_NODES: "bootstrap1:5678"
+      SNOOZ_BOOTSTRAP_NODES: "tcp://bootstrap1:5678"
     networks:
       - snoozraft

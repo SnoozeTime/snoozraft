@@ -5,6 +5,7 @@
 #include "string_utils.h"
 #include <sstream>
 #include <algorithm>
+#include <iostream>
 
 namespace snooz {
 
@@ -47,9 +48,14 @@ std::vector<std::string> split(const std::string& str, std::string delim) {
 }
 
 std::string lower(const std::string& target) {
-    std::string lowered;
-    std::transform(target.begin(), target.end(), lowered.begin(), ::tolower);
-    return lowered;
+
+    std::cout << "Before lower -> " << target << std::endl;
+    std::stringstream ss;
+    std::for_each(target.begin(), target.end(), [&ss] (const char& c) {
+        ss << (char) ::tolower(c);
+    });
+    std::cout << "After lower -> " << ss.str() << std::endl;
+    return ss.str();
 }
 
 }

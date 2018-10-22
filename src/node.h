@@ -24,7 +24,7 @@ namespace snooz {
 ///
 class Node {
 public:
-    explicit Node(JsonConfig config);
+    explicit Node(Config config);
 
     // Start polling messages + managing timeouts
     void start();
@@ -49,7 +49,7 @@ private:
     zmq::context_t zmq_context_{1};
     zmq::socket_t server_{zmq_context_, ZMQ_ROUTER};
 
-    JsonConfig conf_;
+    Config conf_;
     std::string my_address_;
 
     // maintain a address -> Peer map of other peers in the network.
