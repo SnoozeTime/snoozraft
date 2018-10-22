@@ -36,6 +36,9 @@ public:
     /// \return true if deadline is already elapsed
     bool is_elapsed() const;
 
+    /// Will tag as inactive and waiting to be removed.
+    void cancel();
+
     /// Will calculate how much time is left before the deadline. If it is passed, will
     /// return 0
     /// \return Time before deadline or 0
@@ -54,12 +57,17 @@ public:
     /// \return true if timer will be rescheduled after execution.
     bool is_recurrent() const;
 
+    ///
+    /// \return true if the timer can execute.
+    bool is_active() const;
+
 private:
 
     std::chrono::milliseconds timeout_;
     std::chrono::system_clock::time_point deadline_;
     TimerCallback cb_;
     bool is_recurrent_;
+    bool is_active_{true};
 
 };
 

@@ -27,4 +27,6 @@ Not exhaustive list of things I want to implement. Will be updated from time to 
 - [X] Complete ZmqLoop (remove objects)
 - [X] Send ping to all other peers
 - [X] Add peer reaper: when timeout, should check if some peers are not alive and KILL them.
-- [ ] Begin RAFT
+- [X] Begin RAFT
+- [ ] Use msgpack for message content (first frame is address, second is message ID, third is binary content)
+

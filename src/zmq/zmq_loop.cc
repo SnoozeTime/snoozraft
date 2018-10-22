@@ -49,6 +49,14 @@ bool Timer::is_recurrent() const {
     return is_recurrent_;
 }
 
+void Timer::cancel() {
+    is_active_ = false;
+}
+
+bool Timer::is_active() const {
+    return is_active_;
+}
+
 ZmqLoop::ZmqLoop(zmq::context_t *context):
     context_(context),
     shutdown_socket_{*context, ZMQ_PULL}{
@@ -86,6 +94,10 @@ Handle ZmqLoop::add_timeout(milliseconds timeout, TimerCallback cb, bool is_recu
 }
 
 void ZmqLoop::remove_timeout(const Handle& to_remove) {
+    auto t = timer_manager_.get(to_remove);
+    if (t) {
+        t->cancel();
+    }
     handles_to_remove_.push_back(to_remove);
 }
 
@@ -139,7 +151,7 @@ void ZmqLoop::run() {
             std::for_each(timer_handles_.begin(), timer_handles_.end(), [this] (const auto& h) {
 
                 auto* t = timer_manager_.get(h);
-                if (t != nullptr) {
+                if (t != nullptr && t->is_active()) {
 
                     if (t->is_elapsed()) {
                         t->execute();

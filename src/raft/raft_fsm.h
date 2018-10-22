@@ -34,13 +34,27 @@ public:
     void handle(const ZmqMessage& msg);
 private:
     enum class State {
+        WAITING, // Wait for a complete cluster
         LEADER,
         FOLLOWER,
         CANDIDATE
     };
 
-    /// transition before becoming a candidate.
+    // -----------------------------------
+    // HANDLERS FOR SPECIFIC MESSAGES
+    // -----------------------------------
+
+    // -----------------------------------
+    // STATE TRANSITIONS
+    // ------------------------------------
     void before_candidate();
+    void before_leader();
+    void before_follower();
+
+    // ------------------------------------
+    // HELPERS TO SEND MESSAGES
+    // ------------------------------------
+    void send_to_peers(const ZmqMessage& msg);
 
     std::random_device rd;     // only used once to initialise (seed) engine
     std::mt19937 rng{rd()};    // random-number engine used (Mersenne-Twister in this case)
@@ -50,6 +64,7 @@ private:
 
     State state_{State::FOLLOWER};
 
+    int cluster_size_{0};
     int term_{0};
     // For election
     // empty or the one that we have voted for.
