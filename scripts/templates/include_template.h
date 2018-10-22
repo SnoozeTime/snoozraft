@@ -31,9 +31,12 @@ namespace snooz {
     class Message {
     public:
         Message() = default;
-        Message(Message&& other) noexcept = default;
-        Message& operator=(Message&& other) = default;
-        virtual ~Message() = default;
+	explicit Message(std::unique_ptr<MessageData>&& data):
+            data_{std::move(data)} {
+            if (data_) {
+                type_ = data_->message_type();
+            }
+        }
 
         MessageType message_type() const {
             if (data_) {
@@ -61,12 +64,12 @@ namespace snooz {
 
 	  ///
 	/// \param packet message that already contains the address!
-	void pack(ZmqMessage &packet) const {
-	  // First element is the message type.
-	  packet.add_frame(std::to_string(static_cast<int>(type_)));
+	ZmqMessage pack(const std::string& peer_addr) const {
 	  std::stringstream ss;
 	  data_->pack(ss);
-	  packet.add_frame(ss.str());
+	  return ZmqMessage{peer_addr,
+	      std::to_string(static_cast<int>(type_)),
+	      ss.str()};
 	}
 
 	void unpack(const ZmqMessage& msg) {

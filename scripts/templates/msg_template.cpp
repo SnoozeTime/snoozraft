@@ -4,6 +4,7 @@
 #include <sstream>
 #include <string>
 
+#include "snooz_utils.h"
 #include "protocol/message.h"
 
 
