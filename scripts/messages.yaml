@@ -1,54 +1,25 @@
 types:
-  - MESSAGE
-  - ANSWER
-  - JOIN_REQUEST
-  - JOIN_ACK
-  - JOIN_NACK
-  - ERROR
+  - PEER_LIST
+  - HEARTBEAT
+  - JOIN
 
 messages:
-  # This is the text message in the chat.
-  - name: Message
-    msg_type: MESSAGE
-    elements:
-      - name: msg
-        type: "std::string"
-      - name: from
-        type: "std::string"
+  # Sent at regular interval to say I am alive
+  - name: Heartbeat
+    msg_type: HEARTBEAT
+    elements: []
 
-  # Answer a question. This is not sent to anybody else than the server.
-  - name: Answer
-    msg_type: ANSWER
+  # Sent to everybody by the bootstrap node(s) when somebody joins
+  - name: PeerList
+    msg_type: PEER_LIST
     elements:
-      - name: from
-        type: "std::string"
-      - name: answer
-        type: "std::string"
-    line_cmd: ["/a", "/answer"]
-    line_fmt: "{{ answer }}"
+      - name: peers
+        type: "std::vector<std::string>"
 
   # First message sent to the server in order to join the players
   - name: Join
-    msg_type: JOIN_REQUEST
+    msg_type: JOIN
     elements:
-      - name: name
+      - name: address
         type: "std::string"
 
-  # Answer to join request if OK
-  - name: JoinAck
-    msg_type: JOIN_ACK
-    elements: []
-
-  # Answer to join request if not OK
-  - name: JoinNack
-    msg_type: JOIN_NACK
-    elements:
-      - name: error
-        type: "std::string"
-
-  # Basic error message
-  - name: Error
-    msg_type: ERROR
-    elements:
-      - name: error
-        type: "std::string"
