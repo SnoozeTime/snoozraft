@@ -9,7 +9,6 @@
 #include "zmq/message.h"
 
 namespace snooz {
-
 class MessageHandler;
 
 enum class MessageType {
@@ -27,8 +26,7 @@ public:
   virtual MessageType message_type() = 0;
   virtual void unpack(std::string &ss) = 0;
   virtual void pack(std::stringstream &ss) = 0;
-
-  virtual void dispatch(MessageHandler& handler);
+  virtual void dispatch(MessageHandler &handler);
 };
 
 std::unique_ptr<MessageData> create_data(const MessageType &type);
@@ -36,13 +34,12 @@ std::unique_ptr<MessageData> create_data(const MessageType &type);
 class Message {
 public:
   Message() = default;
-  explicit Message(std::unique_ptr<MessageData>&& data):
-      data_{std::move(data)} {
-      if (data_) {
-        type_ = data_->message_type();
-      }
+  explicit Message(std::unique_ptr<MessageData> &&data)
+      : data_{std::move(data)} {
+    if (data_) {
+      type_ = data_->message_type();
+    }
   }
-
 
   MessageType message_type() const {
     if (data_) {
@@ -89,7 +86,7 @@ public:
     data_->unpack(data_buf);
   }
 
-  void dispatch(MessageHandler& handler);
+  void dispatch(MessageHandler &handler);
 
 private:
   MessageType type_{MessageType::NONE};

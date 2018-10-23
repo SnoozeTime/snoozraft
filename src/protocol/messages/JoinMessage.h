@@ -4,7 +4,9 @@
 #include <sstream>
 #include <string>
 
+#include "msg_handler.h"
 #include "protocol/message.h"
+#include "snooz_utils.h"
 
 namespace snooz {
 class JoinMessage : public MessageData {
@@ -19,6 +21,8 @@ public:
   // Default move because the types should be trivials..
   JoinMessage(JoinMessage &&other) noexcept = default;
   JoinMessage &operator=(JoinMessage &&other) = default;
+
+  void dispatch(MessageHandler &handler) override { handler.on_message(*this); }
 
   MessageType message_type() override { return MessageType::JOIN; }
 

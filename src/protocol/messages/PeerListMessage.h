@@ -4,8 +4,10 @@
 #include <sstream>
 #include <string>
 
-#include "protocol/message.h"
 #include "msg_handler.h"
+#include "protocol/message.h"
+#include "snooz_utils.h"
+
 namespace snooz {
 class PeerListMessage : public MessageData {
 public:
@@ -16,14 +18,11 @@ public:
 
         peers_(std::move(peers)) {}
 
-
-  void dispatch(MessageHandler& handler) override {
-    handler.on_message(*this);
-  }
-
   // Default move because the types should be trivials..
   PeerListMessage(PeerListMessage &&other) noexcept = default;
   PeerListMessage &operator=(PeerListMessage &&other) = default;
+
+  void dispatch(MessageHandler &handler) override { handler.on_message(*this); }
 
   MessageType message_type() override { return MessageType::PEER_LIST; }
 

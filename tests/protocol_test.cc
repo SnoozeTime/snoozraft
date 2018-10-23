@@ -4,6 +4,7 @@
 #include <gtest/gtest.h>
 #include "protocol/message.h"
 #include "protocol/messages/PeerListMessage.h"
+#include "protocol/messages/JoinMessage.h"
 #include "msg_handler.h"
 
 using namespace snooz;
@@ -57,5 +58,9 @@ TEST(double_dispatch, msg_handled) {
 }
 
 TEST(double_dispatch, msg_not_handled) {
+    Message msg{std::make_unique<JoinMessage>("hi")};
 
+    TestHandler handler;
+    handler.dispatch(msg);
+    ASSERT_FALSE(handler.ok);
 }

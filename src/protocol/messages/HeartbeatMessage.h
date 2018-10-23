@@ -4,8 +4,9 @@
 #include <sstream>
 #include <string>
 
-#include "snooz_utils.h"
+#include "msg_handler.h"
 #include "protocol/message.h"
+#include "snooz_utils.h"
 
 namespace snooz {
 class HeartbeatMessage : public MessageData {
@@ -15,6 +16,8 @@ public:
   // Default move because the types should be trivials..
   HeartbeatMessage(HeartbeatMessage &&other) noexcept = default;
   HeartbeatMessage &operator=(HeartbeatMessage &&other) = default;
+
+  void dispatch(MessageHandler &handler) override { handler.on_message(*this); }
 
   MessageType message_type() override { return MessageType::HEARTBEAT; }
 
