@@ -9,6 +9,8 @@
 namespace snooz {
 
 class PeerListMessage;
+class HeartbeatMessage;
+class JoinMessage;
 
 class MessageHandler {
 public:
@@ -17,7 +19,9 @@ public:
     }
 
     // Fallback method - need to override
-    virtual void on_message(const MessageData &msg) = 0;
-    virtual void on_message(const PeerListMessage &msg) = 0;
+    virtual void on_message(const MessageData &msg) {};
+    virtual void on_message(const PeerListMessage &msg) {};
+    virtual void on_message(const HeartbeatMessage &msg) {};
+    virtual void on_message(const JoinMessage &msg) {};
 };
 }

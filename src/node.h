@@ -13,6 +13,7 @@
 #include "config.h"
 #include "zmq/message.h"
 #include "raft/raft_fsm.h"
+#include "msg_handler.h"
 
 namespace snooz {
 
@@ -24,7 +25,7 @@ namespace snooz {
 /// A network has Bootstrap/Anchor nodes that have known address and to which other
 /// node will connect to and send "Hello".
 ///
-class Node {
+class Node: public MessageHandler {
 public:
     explicit Node(Config config);
 
@@ -36,16 +37,17 @@ public:
 
     std::map<std::string, Peer>& peers();
 
+    // ----------------------------------------------
+    // Handlers for the message
+    // ----------------------------------------------
+    void on_message(const PeerListMessage &msg) override;
+    void on_message(const HeartbeatMessage &msg) override;
+    void on_message(const JoinMessage &msg) override;
+
 private:
 
     // Will route message to correct handler.
     void handle_message(const ZmqMessage& message);
-
-    // Handle the list of peers :)
-    void handle_peer_list(const ZmqMessage& message);
-
-    // Add a peer to the list of peers if it is not there already.
-    void add_peer(const std::string& addr);
 
     // This is sent to all peers to say "I AM ALIVE"
     void send_heartbeat();
@@ -53,14 +55,19 @@ private:
     // Garbage collection for dead peers.
     void reap_dead_bodies();
 
+    // Add a peer to the list of peers if it is not there already.
+    void add_peer(const std::string& addr);
+
+
+    Config conf_;
     zmq::context_t zmq_context_{1};
+
     ZmqLoop loop_{&zmq_context_};
 
     zmq::socket_t server_{zmq_context_, ZMQ_ROUTER};
-    RaftFSM raft_;
 
-    Config conf_;
     std::string my_address_;
+    RaftFSM raft_;
 
     // maintain a address -> Peer map of other peers in the network.
     std::map<std::string, Peer> peers_;

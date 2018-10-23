@@ -65,10 +65,10 @@ public:
 
   ///
   /// \param packet message that already contains the address!
-  ZmqMessage pack(const std::string &peer_addr) const {
+  ZmqMessage pack() const {
     std::stringstream ss;
     data_->pack(ss);
-    return ZmqMessage{peer_addr, std::to_string(static_cast<int>(type_)),
+    return ZmqMessage{std::to_string(static_cast<int>(type_)),
                       ss.str()};
   }
 

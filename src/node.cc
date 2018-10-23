@@ -12,6 +12,9 @@
 #include "string_utils.h"
 #include "zmq/message.h"
 #include <boost/log/trivial.hpp>
+#include "protocol/messages/HeartbeatMessage.h"
+#include "protocol/messages/JoinMessage.h"
+#include "protocol/messages/PeerListMessage.h"
 
 using std::literals::operator""ms;
 
@@ -37,9 +40,9 @@ void Node::start() {
             // The key must be the same as the one the router will create. To do so, each bootstrap nodes have to set
             // an identity for their dealers.
             add_peer(bootstrap);
-            ZmqMessage join_message{"JOIN", my_address_};
+            Message join_message{std::make_unique<JoinMessage>(my_address_)};
             BOOST_LOG_TRIVIAL(info) << "connect to " << bootstrap;
-            peers_.at(bootstrap).send(join_message);
+            peers_.at(bootstrap).send(join_message.pack());
         }
     }
 
@@ -72,9 +75,6 @@ void Node::handle_message(const ZmqMessage& message) {
     /// ADDRESS | TYPE | CONTENT+
     assert(frames.size() >= 3);
     auto addr = frames[0];
-    auto type = frames[1];
-
-    BOOST_LOG_TRIVIAL(debug) << "Handle message type " << type;
 
     // Always do that. If the peer already exists, we do nothing. If it does not, we will add it
     if (peers_.find(addr) == peers_.end()) {
@@ -84,26 +84,12 @@ void Node::handle_message(const ZmqMessage& message) {
         // If the node is a bootstrap, we need to set the identity of the dealer socket so that the other nodes
         // that will receive the message can find it in their peers_ map.
         add_peer(addr);
-
-        if (type == "JOIN") {
-            BOOST_LOG_TRIVIAL(debug) << "Send peers to everybody";
-            // Need to tell all the peers that we received a new peer connection.
-            for (auto &peers : peers_) {
-                BOOST_LOG_TRIVIAL(debug) << "Send peers list to " << peers.second.address();
-                ZmqMessage list_message{"LIST_PEERS"};
-                for (auto& paddr: peers_addresses_) {
-                    list_message.add_frame(paddr);
-                }
-                peers.second.send(list_message);
-            }
-        }
     }
 
-    if (type == "LIST_PEERS") {
-        handle_peer_list(message);
-    } else if (type == "HEARTBEAT") {
-        BOOST_LOG_TRIVIAL(info) << "Received peer heartbeat from " << addr;
-    }
+    // Dispatch to the handlers
+    Message decoded;
+    decoded.unpack(message);
+    dispatch(decoded);
 
     peers_.at(addr).reset_deadline();
 }
@@ -119,23 +105,10 @@ void Node::add_peer(const std::string& address) {
     peers_.at(address).connect();
 }
 
-void Node::handle_peer_list(const snooz::ZmqMessage &message) {
-
-    const auto& frames = message.frames();
-    for (int i = 2; i < frames.size(); i++) {
-        if (frames[i] != my_address_
-            && peers_.find(frames[i]) == peers_.end()) {
-            BOOST_LOG_TRIVIAL(info) << "will add peer" << frames[i] << std::endl;
-            add_peer(frames[i]);
-        }
-    }
-}
-
 void Node::send_heartbeat() {
-    ZmqMessage hb{"HEARTBEAT", "Hi!"};
-
+    Message hearbeat{std::make_unique<HeartbeatMessage>()};
     for (auto &entry : peers_) {
-        entry.second.send(hb);
+        entry.second.send(hearbeat.pack());
     }
 }
 
@@ -154,6 +127,40 @@ void Node::reap_dead_bodies() {
     }
 
 }
+
+
+void Node::on_message(const snooz::PeerListMessage &msg) {
+    for (const auto& addr: msg.peers()) {
+        if (addr != my_address_
+            && peers_.find(addr) == peers_.end()) {
+            BOOST_LOG_TRIVIAL(info) << "will add peer" << addr << std::endl;
+            add_peer(addr);
+        }
+    }
+}
+
+void Node::on_message(const snooz::HeartbeatMessage &msg) {
+    MessageHandler::on_message(msg);
+}
+
+void Node::on_message(const snooz::JoinMessage &msg) {
+    BOOST_LOG_TRIVIAL(debug) << "Send peers to everybody";
+    // Need to tell all the peers that we received a new peer connection.
+
+    std::vector<std::string> addresses;
+    addresses.reserve(peers_.size());
+    for (auto& peer: peers_) {
+        addresses.push_back(peer.first);
+    }
+
+    Message peer_list{std::make_unique<PeerListMessage>(addresses)};
+    auto msg_to_send = peer_list.pack();
+    for (auto &peer : peers_) {
+        BOOST_LOG_TRIVIAL(debug) << "Send peers list to " << peer.first;
+        peer.second.send(msg_to_send);
+    }
+}
+
 
 // TODO Maybe give loop directly to RaftFSM
 ZmqLoop& Node::loop() { return loop_;}
