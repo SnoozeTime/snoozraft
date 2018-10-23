@@ -20,10 +20,20 @@ namespace snooz {
 
 RaftFSM::RaftFSM(Node* node): node_(node) {
 
-    auto random_integer = uni(rng);
-    BOOST_LOG_TRIVIAL(info) << "Will wait " << random_integer << "before timeout";
-    node_->loop().add_timeout(std::chrono::milliseconds{random_integer},
-            [this] () { before_candidate();}, false); // non recurrent timer.
+    //auto random_integer = uni(rng);
+    //BOOST_LOG_TRIVIAL(info) << "Will wait " << random_integer << "before timeout";
+    start_timer_ = node_->loop().add_timeout(1s,
+            [this] () {
+                // If there are enough peers, start raft consensus.
+                if (node_->peers().size() < 3) {
+                    BOOST_LOG_TRIVIAL(info) << "Less than 3 nodes. Will wait more before starting";
+                } else {
+                    BOOST_LOG_TRIVIAL(info) << "Will start RAFT";
+                    node_->loop().remove_timeout(start_timer_);
+                    set_state(RaftState::FOLLOWER);
+                }
+            });
+
 }
 
 void RaftFSM::handle(const ZmqMessage& msg) {
@@ -67,7 +77,47 @@ void RaftFSM::after_follower() {
 }
 
 void RaftFSM::set_state(RaftState state) {
+    // This is super manual right now. To update if more states in the future
+    if (state_ == state) {
+        return;
+    }
 
+    // Transition to do after a state. This will clean up whatever
+    // state was used during the current state.
+    switch (state_) {
+        case RaftState ::WAITING:
+            // do nothing
+            break;
+        case RaftState::CANDIDATE:
+            after_candidate();
+            break;
+        case RaftState::FOLLOWER:
+            after_follower();
+            break;
+        case RaftState::LEADER:
+            after_leader();
+            break;
+        default:
+            assert(false);
+    }
+
+    // Setup up next state
+    switch (state) {
+        case RaftState::WAITING:
+            // Should not go back to waiting.
+            assert(false);
+        case RaftState::FOLLOWER:
+            before_follower();
+            break;
+        case RaftState::LEADER:
+            before_leader();
+            break;
+        case RaftState::CANDIDATE:
+            before_candidate();
+            break;
+        default:
+            assert(false);
+    }
 }
 
 void RaftFSM::on_message(const AppendEntriesRequestMessage &msg) {

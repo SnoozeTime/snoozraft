@@ -8,7 +8,7 @@ add_library(snoozraft string_utils.cc
         os.cc
         protocol/message.cc
         raft/raft_fsm.cc
-        raft/rpc.cc)
+        )
 target_link_libraries(snoozraft zmq pthread  ${CONAN_LIBS} ${Boost_LIBRARIES})
 
 add_executable(main main.cpp)

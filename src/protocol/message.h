@@ -17,6 +17,10 @@ enum class MessageType {
   HEARTBEAT,
   JOIN,
   NONE,
+    REQUEST_VOTE_REQUEST,
+    REQUEST_VOTE_REPLY,
+    APPEND_ENTRIES_REQUEST,
+    APPEND_ENTRIES_REPLY,
 };
 
 class MessageData {

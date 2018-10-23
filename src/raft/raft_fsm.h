@@ -7,6 +7,7 @@
 #include "zmq/message.h"
 #include <random>
 #include "msg_handler.h"
+#include "handle.h"
 
 namespace snooz {
 
@@ -17,7 +18,7 @@ enum class RaftState {
     LEADER,
     FOLLOWER,
     CANDIDATE
-}
+};
 
 /// Finite state machine for the RAFT consensus.
 /// 3 possible states
@@ -85,6 +86,14 @@ private:
     // empty or the one that we have voted for.
     std::string voted_for{};
     int nb_votes_{0};
+
+    // ------------------------
+    // Keep a track of timers to be able to cancel them if needed
+    // TODO use a container if become too wild
+
+    // This will check that enough peers have joined the network
+    Handle start_timer_;
+
 };
 }
 

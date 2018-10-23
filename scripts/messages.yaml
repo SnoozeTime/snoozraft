@@ -2,6 +2,10 @@ types:
   - PEER_LIST
   - HEARTBEAT
   - JOIN
+  - APPEND_ENTRIES_REQUEST
+  - APPEND_ENTRIES_REPLY
+  - REQUEST_VOTE_REPLY
+  - REQUEST_VOTE_REQUEST
 
 messages:
   # Sent at regular interval to say I am alive
