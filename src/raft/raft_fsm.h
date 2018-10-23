@@ -6,10 +6,18 @@
 
 #include "zmq/message.h"
 #include <random>
+#include "msg_handler.h"
 
 namespace snooz {
 
 class Node;
+
+enum class RaftState {
+    WAITING, // Wait for a complete cluster
+    LEADER,
+    FOLLOWER,
+    CANDIDATE
+}
 
 /// Finite state machine for the RAFT consensus.
 /// 3 possible states
@@ -26,30 +34,37 @@ class Node;
 /// - Timeout events (for example, didn't receive message from LEADER in a long time)
 ///
 /// The RaftFSM will communicate with Node via ZMQ dealer to dealer sockets.
-class RaftFSM {
+class RaftFSM: public MessageHandler {
 public:
 
     explicit RaftFSM(Node* node);
 
     void handle(const ZmqMessage& msg);
-private:
-    enum class State {
-        WAITING, // Wait for a complete cluster
-        LEADER,
-        FOLLOWER,
-        CANDIDATE
-    };
+
+    void set_state(RaftState state);
+
 
     // -----------------------------------
     // HANDLERS FOR SPECIFIC MESSAGES
     // -----------------------------------
+    void on_message(const AppendEntriesRequestMessage &msg) override;
+    void on_message(const AppendEntriesReplyMessage &msg) override;
+    void on_message(const RequestVoteRequestMessage &msg) override;
+    void on_message(const RequestVoteReplyMessage &msg) override;
+
+private:
 
     // -----------------------------------
     // STATE TRANSITIONS
     // ------------------------------------
     void before_candidate();
+    void after_candidate();
+
     void before_leader();
+    void after_leader();
+
     void before_follower();
+    void after_follower();
 
     // ------------------------------------
     // HELPERS TO SEND MESSAGES
@@ -62,7 +77,7 @@ private:
 
     Node* node_;
 
-    State state_{State::FOLLOWER};
+    RaftState state_{RaftState::WAITING};
 
     int cluster_size_{0};
     int term_{0};

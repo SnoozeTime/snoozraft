@@ -68,8 +68,7 @@ public:
   ZmqMessage pack() const {
     std::stringstream ss;
     data_->pack(ss);
-    return ZmqMessage{std::to_string(static_cast<int>(type_)),
-                      ss.str()};
+    return ZmqMessage{std::to_string(static_cast<int>(type_)), ss.str()};
   }
 
   void unpack(const ZmqMessage &msg) {

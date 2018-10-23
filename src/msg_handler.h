@@ -11,6 +11,10 @@ namespace snooz {
 class PeerListMessage;
 class HeartbeatMessage;
 class JoinMessage;
+class AppendEntriesRequestMessage;
+class AppendEntriesReplyMessage;
+class RequestVoteRequestMessage;
+class RequestVoteReplyMessage;
 
 class MessageHandler {
 public:
@@ -23,5 +27,9 @@ public:
     virtual void on_message(const PeerListMessage &msg) {};
     virtual void on_message(const HeartbeatMessage &msg) {};
     virtual void on_message(const JoinMessage &msg) {};
+    virtual void on_message(const AppendEntriesRequestMessage &msg) {};
+    virtual void on_message(const AppendEntriesReplyMessage &msg) {};
+    virtual void on_message(const RequestVoteRequestMessage &msg) {};
+    virtual void on_message(const RequestVoteReplyMessage &msg) {};
 };
 }

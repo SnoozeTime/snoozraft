@@ -23,3 +23,42 @@ messages:
       - name: address
         type: "std::string"
 
+  # -------------------------------------------------------
+  # RAFT MESSAGES
+  # -------------------------------------------------------
+
+  - name: RequestVoteRequest
+    msg_type: REQUEST_VOTE_REQUEST
+    elements:
+        - name: term
+          type: int
+        - name: candidate_id
+          type: "std::string"
+        - name: last_log_index
+          type: int
+        - name: last_log_term
+          type: int
+
+  - name: RequestVoteReply
+    msg_type: REQUEST_VOTE_REPLY
+    elements:
+        - name: term
+          type: int
+        - name: vote_granted
+          type: bool
+
+  - name: AppendEntriesRequest
+    msg_type: APPEND_ENTRIES_REQUEST
+    elements:
+        - name: term
+          type: int
+        - name: leader_id
+          type: "std::string"
+
+  - name: AppendEntriesReply
+    msg_type: APPEND_ENTRIES_REPLY
+    elements:
+        - name: term
+          type: int
+        - name: success
+          type: bool

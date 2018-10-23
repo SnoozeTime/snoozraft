@@ -8,6 +8,12 @@
 #include <chrono>
 #include <boost/log/trivial.hpp>
 
+
+#include <protocol/messages/AppendEntriesRequestMessage.h>
+#include <protocol/messages/AppendEntriesReplyMessage.h>
+#include <protocol/messages/RequestVoteReplyMessage.h>
+#include <protocol/messages/RequestVoteRequestMessage.h>
+
 using namespace std::literals;
 
 namespace snooz {
@@ -26,7 +32,7 @@ void RaftFSM::handle(const ZmqMessage& msg) {
 
 void RaftFSM::before_candidate() {
     BOOST_LOG_TRIVIAL(info) << "RAFT -> transition to candidate";
-    state_ = State::CANDIDATE;
+    state_ = RaftState::CANDIDATE;
     term_++;
     voted_for = "me!";
 
@@ -46,6 +52,38 @@ void RaftFSM::before_follower() {
 
 void RaftFSM::send_to_peers(const ZmqMessage &msg) {
 
+}
+
+void RaftFSM::after_candidate() {
+
+}
+
+void RaftFSM::after_leader() {
+
+}
+
+void RaftFSM::after_follower() {
+
+}
+
+void RaftFSM::set_state(RaftState state) {
+
+}
+
+void RaftFSM::on_message(const AppendEntriesRequestMessage &msg) {
+    MessageHandler::on_message(msg);
+}
+
+void RaftFSM::on_message(const AppendEntriesReplyMessage &msg) {
+    MessageHandler::on_message(msg);
+}
+
+void RaftFSM::on_message(const RequestVoteRequestMessage &msg) {
+    MessageHandler::on_message(msg);
+}
+
+void RaftFSM::on_message(const RequestVoteReplyMessage &msg) {
+    MessageHandler::on_message(msg);
 }
 
 
