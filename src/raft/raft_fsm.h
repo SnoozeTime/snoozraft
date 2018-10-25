@@ -87,13 +87,17 @@ private:
     std::string voted_for{};
     int nb_votes_{0};
 
+    constexpr static int minimum_nb_peers_{3}
+    ;
     // ------------------------
     // Keep a track of timers to be able to cancel them if needed
     // TODO use a container if become too wild
 
-    // This will check that enough peers have joined the network
-    Handle start_timer_;
-
+    // Can be used independently at different state of the FSM
+    // - waiting -> Wait for minimum number of peers in the network
+    // - following -> Timeout if not heartbeat ot start new election
+    // - leader -> to send heartbeat if haven't sent anything yet.
+    Handle raft_timer_;
 };
 }
 

@@ -22,14 +22,15 @@ RaftFSM::RaftFSM(Node* node): node_(node) {
 
     //auto random_integer = uni(rng);
     //BOOST_LOG_TRIVIAL(info) << "Will wait " << random_integer << "before timeout";
-    start_timer_ = node_->loop().add_timeout(1s,
+    raft_timer_ = node_->loop().add_timeout(1s,
             [this] () {
                 // If there are enough peers, start raft consensus.
-                if (node_->peers().size() < 3) {
+                // -1 to say I am included
+                if (node_->peers().size() < minimum_nb_peers_ - 1) {
                     BOOST_LOG_TRIVIAL(info) << "Less than 3 nodes. Will wait more before starting";
                 } else {
                     BOOST_LOG_TRIVIAL(info) << "Will start RAFT";
-                    node_->loop().remove_timeout(start_timer_);
+                    // node_->loop().remove_timeout(start_timer_);
                     set_state(RaftState::FOLLOWER);
                 }
             });
@@ -57,7 +58,23 @@ void RaftFSM::before_leader() {
 }
 
 void RaftFSM::before_follower() {
+
+    // TODO FIX stuff there is a bug. The timeout is not removed somehow..
     // Timeout for next election. This can be canceled when receiving from leader.
+    BOOST_LOG_TRIVIAL(info) << "Before follower transition";
+    // Remove whatever timeout was used before
+    node_->loop().remove_timeout(raft_timer_);
+
+
+    auto random_integer = uni(rng);
+    BOOST_LOG_TRIVIAL(info) << "Timeout for follower is " << random_integer << " milliseconds";
+    node_->loop().add_timeout(std::chrono::milliseconds{random_integer}, [this] {
+        BOOST_LOG_TRIVIAL(info) << "Follower timeout. Will start new election";
+
+        // should be candidate here. Just for testing
+        set_state(RaftState::FOLLOWER);
+    });
+
 }
 
 void RaftFSM::send_to_peers(const ZmqMessage &msg) {

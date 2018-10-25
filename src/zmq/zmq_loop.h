@@ -32,6 +32,9 @@ public:
     /// Reset the deadline
     void reset();
 
+    /// Reset the deadline and set new timeout
+    void reset(std::chrono::milliseconds timeout);
+
     ///
     /// \return true if deadline is already elapsed
     bool is_elapsed() const;
@@ -111,6 +114,9 @@ public:
 
     // Stop the loop. It is connecting to the shutdown socket and BAM.
     void shutdown();
+
+    /// Send a pointer (might be null if handle is expired) to the timer
+    Timer* get_timer(Handle h) const;
 
 private:
 

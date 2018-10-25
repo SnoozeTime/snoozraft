@@ -57,6 +57,11 @@ bool Timer::is_active() const {
     return is_active_;
 }
 
+void Timer::reset(std::chrono::milliseconds timeout) {
+    timeout_ = timeout;
+    reset();
+}
+
 ZmqLoop::ZmqLoop(zmq::context_t *context):
     context_(context),
     shutdown_socket_{*context, ZMQ_PULL}{
@@ -198,6 +203,10 @@ void ZmqLoop::run() {
         }
 
     }
+}
+
+Timer* ZmqLoop::get_timer(Handle h) const {
+    return timer_manager_.get(h);
 }
 
 }
