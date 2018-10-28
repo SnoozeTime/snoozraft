@@ -1,3 +1,5 @@
+
+set(CMAKE_CXX_FLAGS "-Wall -Werror")
 add_library(snoozraft string_utils.cc
         zmq/zmq_helpers.cc
         node.cc

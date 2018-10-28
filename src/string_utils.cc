@@ -78,7 +78,7 @@ std::string trim_right(const std::string& input) {
 
 std::string trim(const std::string& input) {
     auto trimmed_left = trim_left(input);
-    return trim_right(input);
+    return trim_right(trimmed_left);
 }
 
 }

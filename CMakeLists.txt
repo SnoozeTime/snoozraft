@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.10)
 project(snoozraft2)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_GLIBCXX_DEBUG")
+
 
 # FOR TESTING
 add_subdirectory (googletest-release-1.7.0)
@@ -12,7 +14,6 @@ find_package( Boost REQUIRED COMPONENTS program_options system log log_setup)
 ADD_DEFINITIONS(-DBOOST_LOG_DYN_LINK)
 include_directories( ${Boost_INCLUDE_DIRS} )
 
-set(CMAKE_CXX_STANDARD 14)
 
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()

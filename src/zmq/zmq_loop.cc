@@ -4,6 +4,7 @@
 
 #include "zmq_loop.h"
 #include <iostream>
+#include "snooz_utils.h"
 
 namespace snooz {
 using namespace std::literals;
@@ -142,6 +143,7 @@ void ZmqLoop::run() {
 
         try {
             int count = zmq::poll(&poll_items_[0], poll_items_.size(), next_timeout());
+            UNUSED(count);
 
             // now see what item has ZMQ_POLLIN
             for (int i = 0; i < poll_items_.size(); i++) {
