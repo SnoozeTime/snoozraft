@@ -13,7 +13,7 @@
 #include "config.h"
 #include "zmq/message.h"
 #include "raft/raft_fsm.h"
-#include "msg_handler.h"
+#include "protocol/msg_handler.h"
 
 namespace snooz {
 

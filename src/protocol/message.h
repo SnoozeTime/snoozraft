@@ -13,14 +13,14 @@ class MessageHandler;
 
 enum class MessageType {
 
-  PEER_LIST,
   HEARTBEAT,
+  PEER_LIST,
   JOIN,
+  REQUEST_VOTE_REQUEST,
+  REQUEST_VOTE_REPLY,
+  APPEND_ENTRIES_REQUEST,
+  APPEND_ENTRIES_REPLY,
   NONE,
-    REQUEST_VOTE_REQUEST,
-    REQUEST_VOTE_REPLY,
-    APPEND_ENTRIES_REQUEST,
-    APPEND_ENTRIES_REPLY,
 };
 
 class MessageData {
@@ -30,7 +30,7 @@ public:
   virtual MessageType message_type() = 0;
   virtual void unpack(std::string &ss) = 0;
   virtual void pack(std::stringstream &ss) = 0;
-  virtual void dispatch(const std::string& from, MessageHandler &handler);
+  virtual void dispatch(const std::string &from, MessageHandler &handler);
 };
 
 std::unique_ptr<MessageData> create_data(const MessageType &type);
@@ -89,16 +89,14 @@ public:
     data_->unpack(data_buf);
   }
 
-  void dispatch(const std::string& from, MessageHandler &handler);
+  void dispatch(const std::string &from, MessageHandler &handler);
 
 private:
   MessageType type_{MessageType::NONE};
   std::unique_ptr<MessageData> data_;
 };
 
-template<typename T, typename ...Args>
-Message make_message(Args&&... args) {
+template <typename T, typename... Args> Message make_message(Args &&... args) {
   return Message{std::make_unique<T>(std::forward<Args>(args)...)};
 }
-
 }

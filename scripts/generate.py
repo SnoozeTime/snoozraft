@@ -34,6 +34,7 @@ def main(msgs):
     msg_template = load_template('msg_template.cpp')
     include_header_template = load_template('include_template.h')
     include_impl_template = load_template('include_template.cpp')
+    msg_handler_template = load_template('msg_handler.h')
     with open(msgs, 'r') as f:
         yml = yaml.load(f)
         msgs = [Message(x) for x in yml['messages']]
@@ -42,10 +43,13 @@ def main(msgs):
             generate_class(msg_template, msg)
 
         with open('{}/message.h'.format(GENERATED_FOLDER), 'w') as g:
-            g.write(include_header_template.render(enums=yml['types']))
+            g.write(include_header_template.render(enums=[x.message_type for x in msgs]))
 
         with open('{}/message.cc'.format(GENERATED_FOLDER), 'w') as h:
             h.write(include_impl_template.render(msgs=msgs))
+
+        with open('{}/msg_handler.h'.format(GENERATED_FOLDER), 'w') as k:
+            k.write(msg_handler_template.render(classes=msgs))
 
 if __name__ == '__main__':
 

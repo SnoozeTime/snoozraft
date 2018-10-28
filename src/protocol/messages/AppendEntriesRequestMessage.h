@@ -4,8 +4,8 @@
 #include <sstream>
 #include <string>
 
-#include "msg_handler.h"
 #include "protocol/message.h"
+#include "protocol/msg_handler.h"
 #include "snooz_utils.h"
 
 namespace snooz {
@@ -26,7 +26,9 @@ public:
   AppendEntriesRequestMessage &
   operator=(AppendEntriesRequestMessage &&other) = default;
 
-  void dispatch(const std::string& from, MessageHandler &handler) override { handler.on_message(from, *this); }
+  void dispatch(const std::string &from, MessageHandler &handler) override {
+    handler.on_message(from, *this);
+  }
 
   MessageType message_type() override {
     return MessageType::APPEND_ENTRIES_REQUEST;

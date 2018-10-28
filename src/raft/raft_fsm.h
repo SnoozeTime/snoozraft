@@ -6,7 +6,7 @@
 
 #include "zmq/message.h"
 #include <random>
-#include "msg_handler.h"
+#include "protocol/msg_handler.h"
 #include "handle.h"
 
 namespace snooz {

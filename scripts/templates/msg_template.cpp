@@ -6,7 +6,7 @@
 
 #include "snooz_utils.h"
 #include "protocol/message.h"
-#include "msg_handler.h"
+#include "protocol/msg_handler.h"
 
 
 namespace snooz {
@@ -27,8 +27,8 @@ public:
   {{ msg.name }}Message({{ msg.name }}Message&& other) noexcept = default;
   {{ msg.name }}Message& operator=({{ msg.name}}Message&& other) = default;
 
-  void dispatch(MessageHandler& handler) override {
-    handler.on_message(*this);
+  void dispatch(const std::string& from, MessageHandler& handler) override {
+    handler.on_message(from, *this);
   }
   
   MessageType message_type() override {

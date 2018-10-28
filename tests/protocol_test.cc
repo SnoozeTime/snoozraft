@@ -5,7 +5,7 @@
 #include "protocol/message.h"
 #include "protocol/messages/PeerListMessage.h"
 #include "protocol/messages/JoinMessage.h"
-#include "msg_handler.h"
+#include "protocol/msg_handler.h"
 
 using namespace snooz;
 
