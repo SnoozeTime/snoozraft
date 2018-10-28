@@ -24,6 +24,7 @@ void Peer::connect() {
 }
 
 void Peer::send(const ZmqMessage& msg) {
+    BOOST_LOG_TRIVIAL(info) << "send message to dealer " << address_;
     send_message(dealer_, msg);
 }
 

@@ -26,7 +26,7 @@ public:
   AppendEntriesReplyMessage &
   operator=(AppendEntriesReplyMessage &&other) = default;
 
-  void dispatch(MessageHandler &handler) override { handler.on_message(*this); }
+  void dispatch(const std::string& from, MessageHandler &handler) override { handler.on_message(from, *this); }
 
   MessageType message_type() override {
     return MessageType::APPEND_ENTRIES_REPLY;

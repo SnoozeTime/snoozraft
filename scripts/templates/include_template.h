@@ -92,5 +92,8 @@ namespace snooz {
         std::unique_ptr<MessageData> data_;
     };
 
-
+    template<typename T, typename ...Args>
+      Message make_message(Args&&... args) {
+      return Message{std::make_unique<T>(std::forward<Args>(args)...)};
+    }
 }

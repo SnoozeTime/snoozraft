@@ -44,14 +44,13 @@ public:
 
     void set_state(RaftState state);
 
-
     // -----------------------------------
     // HANDLERS FOR SPECIFIC MESSAGES
     // -----------------------------------
-    void on_message(const AppendEntriesRequestMessage &msg) override;
-    void on_message(const AppendEntriesReplyMessage &msg) override;
-    void on_message(const RequestVoteRequestMessage &msg) override;
-    void on_message(const RequestVoteReplyMessage &msg) override;
+    void on_message(const std::string& from, const AppendEntriesRequestMessage &msg) override;
+    void on_message(const std::string& from, const AppendEntriesReplyMessage &msg) override;
+    void on_message(const std::string& from, const RequestVoteRequestMessage &msg) override;
+    void on_message(const std::string& from, const RequestVoteReplyMessage &msg) override;
 
 private:
 
@@ -67,10 +66,15 @@ private:
     void before_follower();
     void after_follower();
 
+    void after_waiting();
+
     // ------------------------------------
     // HELPERS TO SEND MESSAGES
     // ------------------------------------
     void send_to_peers(const ZmqMessage& msg);
+    void send_to_peer(const std::string& peer_id, const ZmqMessage& msg);
+
+    void send_hearbeat();
 
     std::random_device rd;     // only used once to initialise (seed) engine
     std::mt19937 rng{rd()};    // random-number engine used (Mersenne-Twister in this case)
@@ -84,7 +88,7 @@ private:
     int term_{0};
     // For election
     // empty or the one that we have voted for.
-    std::string voted_for{};
+    std::string voted_for_{};
     int nb_votes_{0};
 
     constexpr static int minimum_nb_peers_{3}

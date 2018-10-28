@@ -40,9 +40,11 @@ public:
     // ----------------------------------------------
     // Handlers for the message
     // ----------------------------------------------
-    void on_message(const PeerListMessage &msg) override;
-    void on_message(const HeartbeatMessage &msg) override;
-    void on_message(const JoinMessage &msg) override;
+    void on_message(const std::string& from, const PeerListMessage &msg) override;
+    void on_message(const std::string& from, const HeartbeatMessage &msg) override;
+    void on_message(const std::string& from, const JoinMessage &msg) override;
+
+    const std::string& my_address() const;
 
 private:
 
@@ -71,8 +73,7 @@ private:
 
     // maintain a address -> Peer map of other peers in the network.
     std::map<std::string, Peer> peers_;
-    // local router address to global address
-    std::map<std::string, std::string> local_to_addr_;
+
 
     std::vector<std::string> peers_addresses_;
 };

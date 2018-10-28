@@ -12,11 +12,11 @@ using namespace snooz;
 class TestHandler: public MessageHandler {
 public:
 
-    void on_message(const PeerListMessage& peer_list) override {
+    void on_message(const std::string& from, const PeerListMessage& peer_list) override {
         ok = true;
     }
 
-    void on_message(const MessageData &msg) override {
+    void on_message(const std::string& from, const MessageData &msg) override {
         std::cout << "not handled\n";
     }
 
@@ -57,7 +57,7 @@ TEST(double_dispatch, msg_handled) {
     Message msg{std::make_unique<PeerListMessage>(peers)};
 
     TestHandler handler;
-    handler.dispatch(msg);
+    handler.dispatch("j", msg);
     ASSERT_TRUE(handler.ok);
 }
 
@@ -65,6 +65,6 @@ TEST(double_dispatch, msg_not_handled) {
     Message msg{std::make_unique<JoinMessage>("hi")};
 
     TestHandler handler;
-    handler.dispatch(msg);
+    handler.dispatch("hi", msg);
     ASSERT_FALSE(handler.ok);
 }

@@ -18,18 +18,18 @@ class RequestVoteReplyMessage;
 
 class MessageHandler {
 public:
-    void dispatch(Message& message) {
-        message.dispatch(*this);
+    void dispatch(const std::string& from, Message& message) {
+        message.dispatch(from, *this);
     }
 
     // Fallback method - need to override
-    virtual void on_message(const MessageData &msg) {};
-    virtual void on_message(const PeerListMessage &msg) {};
-    virtual void on_message(const HeartbeatMessage &msg) {};
-    virtual void on_message(const JoinMessage &msg) {};
-    virtual void on_message(const AppendEntriesRequestMessage &msg) {};
-    virtual void on_message(const AppendEntriesReplyMessage &msg) {};
-    virtual void on_message(const RequestVoteRequestMessage &msg) {};
-    virtual void on_message(const RequestVoteReplyMessage &msg) {};
+    virtual void on_message(const std::string& from, const MessageData &msg) {};
+    virtual void on_message(const std::string& from, const PeerListMessage &msg) {};
+    virtual void on_message(const std::string& from, const HeartbeatMessage &msg) {};
+    virtual void on_message(const std::string& from, const JoinMessage &msg) {};
+    virtual void on_message(const std::string& from, const AppendEntriesRequestMessage &msg) {};
+    virtual void on_message(const std::string& from, const AppendEntriesReplyMessage &msg) {};
+    virtual void on_message(const std::string& from, const RequestVoteRequestMessage &msg) {};
+    virtual void on_message(const std::string& from, const RequestVoteReplyMessage &msg) {};
 };
 }

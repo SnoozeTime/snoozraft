@@ -31,7 +31,7 @@ public:
   RequestVoteRequestMessage &
   operator=(RequestVoteRequestMessage &&other) = default;
 
-  void dispatch(MessageHandler &handler) override { handler.on_message(*this); }
+  void dispatch(const std::string& from, MessageHandler &handler) override { handler.on_message(from, *this); }
 
   MessageType message_type() override {
     return MessageType::REQUEST_VOTE_REQUEST;

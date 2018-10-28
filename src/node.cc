@@ -89,7 +89,8 @@ void Node::handle_message(const ZmqMessage& message) {
     // Dispatch to the handlers
     Message decoded;
     decoded.unpack(message);
-    dispatch(decoded);
+    dispatch(addr, decoded);
+    raft_.dispatch(addr, decoded);
 
     peers_.at(addr).reset_deadline();
 }
@@ -129,7 +130,7 @@ void Node::reap_dead_bodies() {
 }
 
 
-void Node::on_message(const snooz::PeerListMessage &msg) {
+void Node::on_message(const std::string& from, const snooz::PeerListMessage &msg) {
     for (const auto& addr: msg.peers()) {
         if (addr != my_address_
             && peers_.find(addr) == peers_.end()) {
@@ -139,11 +140,10 @@ void Node::on_message(const snooz::PeerListMessage &msg) {
     }
 }
 
-void Node::on_message(const snooz::HeartbeatMessage &msg) {
-    MessageHandler::on_message(msg);
+void Node::on_message(const std::string& from, const snooz::HeartbeatMessage &msg) {
 }
 
-void Node::on_message(const snooz::JoinMessage &msg) {
+void Node::on_message(const std::string& from, const snooz::JoinMessage &msg) {
     BOOST_LOG_TRIVIAL(debug) << "Send peers to everybody";
     // Need to tell all the peers that we received a new peer connection.
 
@@ -165,5 +165,9 @@ void Node::on_message(const snooz::JoinMessage &msg) {
 // TODO Maybe give loop directly to RaftFSM
 ZmqLoop& Node::loop() { return loop_;}
 std::map<std::string, Peer>& Node::peers() { return peers_; }
+
+const std::string &Node::my_address() const {
+    return my_address_;
+}
 
 }

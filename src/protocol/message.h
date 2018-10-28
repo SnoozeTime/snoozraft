@@ -30,7 +30,7 @@ public:
   virtual MessageType message_type() = 0;
   virtual void unpack(std::string &ss) = 0;
   virtual void pack(std::stringstream &ss) = 0;
-  virtual void dispatch(MessageHandler &handler);
+  virtual void dispatch(const std::string& from, MessageHandler &handler);
 };
 
 std::unique_ptr<MessageData> create_data(const MessageType &type);
@@ -89,10 +89,16 @@ public:
     data_->unpack(data_buf);
   }
 
-  void dispatch(MessageHandler &handler);
+  void dispatch(const std::string& from, MessageHandler &handler);
 
 private:
   MessageType type_{MessageType::NONE};
   std::unique_ptr<MessageData> data_;
 };
+
+template<typename T, typename ...Args>
+Message make_message(Args&&... args) {
+  return Message{std::make_unique<T>(std::forward<Args>(args)...)};
+}
+
 }

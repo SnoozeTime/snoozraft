@@ -33,13 +33,13 @@ namespace snooz {
     }
   }
 
-  void Message::dispatch(MessageHandler &handler) {
+  void Message::dispatch(const std::string& from, MessageHandler &handler) {
     if (data_) {
-      data_->dispatch(handler);
+      data_->dispatch(from, handler);
     }
   }
 
-  void MessageData::dispatch(MessageHandler &handler) {
-    handler.on_message(*this);
+  void MessageData::dispatch(const std::string& from, MessageHandler &handler) {
+    handler.on_message(from, *this);
   }
 }
