@@ -52,6 +52,8 @@ public:
     void on_message(const std::string& from, const RequestVoteRequestMessage &msg) override;
     void on_message(const std::string& from, const RequestVoteReplyMessage &msg) override;
 
+    std::string leader_addr();
+
 private:
 
     // -----------------------------------
@@ -90,6 +92,8 @@ private:
     // empty or the one that we have voted for.
     std::string voted_for_{};
     int nb_votes_{0};
+
+    std::string leader_addr_;
 
     constexpr static int minimum_nb_peers_{3}
     ;

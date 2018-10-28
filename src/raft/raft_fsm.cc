@@ -60,6 +60,9 @@ void RaftFSM::before_candidate() {
 void RaftFSM::before_leader() {
     node_->loop().remove_timeout(raft_timer_);
 
+    // me!
+    leader_addr_ = node_->my_address();
+
     // Send heartbeat to tell the world I am new leader
     send_hearbeat();
 
@@ -155,11 +158,16 @@ void RaftFSM::on_message(const std::string& from, const AppendEntriesRequestMess
     // timer so that a follower does not try to start a new election
     // when the leader is obviously not dead.
     if (state_ == RaftState::FOLLOWER) {
+
+        // TODO is it true though? Maybe compare with current term...
+        leader_addr_ = from;
+
         BOOST_LOG_TRIVIAL(info) << "Follower receied AppendEntriesRequest";
         auto* t = node_->loop().get_timer(raft_timer_);
         assert(t != nullptr);
         t->reset();
     } else if (state_ == RaftState::CANDIDATE) {
+        leader_addr_ = from;
         BOOST_LOG_TRIVIAL(info) << "Candidates receive AppendEntriesRequest from leader. Go back to being FOLLOWER";
         set_state(RaftState::FOLLOWER);
     }
@@ -224,6 +232,10 @@ void RaftFSM::send_hearbeat() {
     BOOST_LOG_TRIVIAL(info) << "Leader sends heartbeat.";
     auto msg = make_message<AppendEntriesRequestMessage>(term_, node_->my_address());
     send_to_peers(msg.pack());
+}
+
+std::string RaftFSM::leader_addr() {
+    return leader_addr_;
 }
 
 

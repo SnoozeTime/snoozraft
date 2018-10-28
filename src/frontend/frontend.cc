@@ -15,6 +15,10 @@ Frontend::Frontend(zmq::context_t &context, int port) :
     port_{port} {
 }
 
+void Frontend::stop() {
+    loop_.shutdown();
+}
+
 void Frontend::run() {
 
     // ------------------------------
@@ -43,14 +47,18 @@ void Frontend::run() {
 }
 
 void Frontend::handle_client_request() {
-
     ZmqMessage msg = receive_message(frontend_);
 
+    // for now just forward to the backend.
+    send_message(backend_, msg);
 }
 
 void Frontend::handle_backend_response() {
     ZmqMessage msg = receive_message(backend_);
 
+    // First frame is the addr to send to.
+    // Second frame is the response, so can send it as it is through the router.
+    send_message(frontend_, msg);
 }
 
 }

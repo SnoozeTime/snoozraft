@@ -14,11 +14,14 @@ namespace snooz {
 /// Will connect to the node in order to issue requests.
 class Frontend {
 public:
-    explicit Frontend(zmq::context_t &context, int port);
+    Frontend(zmq::context_t &context, int port);
 
     /// Will connect the sockets and run the event loop. Blocking so should
     /// be run in a different thread.
     void run();
+
+    /// Stop the loop.
+    void stop();
 private:
 
     /// Incoming message from the client
@@ -31,6 +34,7 @@ private:
     zmq::socket_t frontend_;
     zmq::socket_t backend_;
     int port_;
+
 };
 
 }

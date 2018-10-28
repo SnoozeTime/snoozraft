@@ -9,6 +9,8 @@
 #include <vector>
 #include <zmq.hpp>
 #include <zmq/zmq_loop.h>
+#include <frontend/frontend.h>
+#include <thread>
 #include "peer.h"
 #include "config.h"
 #include "zmq/message.h"
@@ -28,6 +30,7 @@ namespace snooz {
 class Node: public MessageHandler {
 public:
     explicit Node(Config config);
+    ~Node();
 
     // Start polling messages + managing timeouts
     void start();
@@ -60,6 +63,8 @@ private:
     // Add a peer to the list of peers if it is not there already.
     void add_peer(const std::string& addr);
 
+    void handle_client_request();
+
 
     Config conf_;
     zmq::context_t zmq_context_{1};
@@ -67,9 +72,13 @@ private:
     ZmqLoop loop_{&zmq_context_};
 
     zmq::socket_t server_{zmq_context_, ZMQ_ROUTER};
+    // Receives request router from front end.
+    zmq::socket_t client_backend_{zmq_context_, ZMQ_DEALER};
 
     std::string my_address_;
     RaftFSM raft_;
+    Frontend frontend_;
+    std::thread frontend_thread_;
 
     // maintain a address -> Peer map of other peers in the network.
     std::map<std::string, Peer> peers_;

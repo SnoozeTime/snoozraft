@@ -23,8 +23,15 @@ namespace snooz {
 Node::Node(Config conf):
     conf_{std::move(conf)},
     my_address_{"tcp://" + conf_.host() + ":" + conf_.port()},
-    raft_{this}
+    raft_{this},
+    frontend_{zmq_context_, 4444},
+    frontend_thread_([this] { frontend_.run();})
     {
+}
+
+Node::~Node() {
+    frontend_.stop();
+    frontend_thread_.join();
 }
 
 void Node::start() {
@@ -50,6 +57,15 @@ void Node::start() {
         auto message = receive_message(server_);
         handle_message(message);
     });
+
+    // --------------------------------------------
+    // Then bind the client backend socket
+    // --------------------------------------------
+    client_backend_.connect("inproc://request_backend");
+    loop_.add_zmq_socket(client_backend_, [this] {
+        handle_client_request();
+    });
+
 
     // TODO need to make this configurable
     loop_.add_timeout(5000ms, [this]() {
@@ -161,6 +177,17 @@ void Node::on_message(const std::string& from, const snooz::JoinMessage &msg) {
     }
 }
 
+void Node::handle_client_request() {
+    auto msg = receive_message(client_backend_);
+    auto frames = msg.frames();
+    assert(frames.size() == 2);
+
+    // need to save this and put it as first frame in the return message
+    auto addr = frames[0];
+
+    // Are we leader? Raft knows it.
+
+}
 
 // TODO Maybe give loop directly to RaftFSM
 ZmqLoop& Node::loop() { return loop_;}
