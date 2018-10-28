@@ -45,3 +45,24 @@ TEST(string_util, lower) {
     auto res3 = snooz::lower("Y");
     ASSERT_STREQ("y", res3.c_str());
 }
+
+TEST(trim, trim_left) {
+    ASSERT_STREQ("", snooz::trim_left("").c_str());
+    ASSERT_STREQ("Bonjour", snooz::trim_left(" Bonjour").c_str());
+    ASSERT_STREQ("Bonjour", snooz::trim_left("  Bonjour").c_str());
+    ASSERT_STREQ("\tBonjour", snooz::trim_left("\tBonjour").c_str());
+}
+
+TEST(trim, trim_right) {
+    ASSERT_STREQ("", snooz::trim_right("").c_str());
+    ASSERT_STREQ("Bonjour", snooz::trim_right("Bonjour  ").c_str());
+    ASSERT_STREQ("Bonjour", snooz::trim_right("Bonjour ").c_str());
+    ASSERT_STREQ("\tBonjour\n \t", snooz::trim_right("\tBonjour\n \t").c_str());
+}
+
+TEST(trim, trim) {
+    ASSERT_STREQ("", snooz::trim("").c_str());
+    ASSERT_STREQ("Bonjour", snooz::trim(" Bonjour  ").c_str());
+    ASSERT_STREQ("Bonjour", snooz::trim("    Bonjour ").c_str());
+    ASSERT_STREQ("\tBonjour\n \t", snooz::trim("\tBonjour\n \t").c_str());
+}

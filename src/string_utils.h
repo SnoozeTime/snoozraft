@@ -32,6 +32,24 @@ namespace snooz {
     /// \param target
     /// \return
     std::string lower(const std::string& target);
+
+    /// Return a string with spaces on the left trimmed
+    ///
+    /// \param input
+    /// \return
+    std::string trim_left(const std::string& input);
+
+    /// Return a string with spaces on the right trimmed
+    ///
+    /// \param input
+    /// \return
+    std::string trim_right(const std::string& input);
+
+    /// Return a string with spaces on left and right trimmed
+    ///
+    /// \param input
+    /// \return
+    std::string trim(const std::string& input);
 }
 
 
