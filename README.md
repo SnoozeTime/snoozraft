@@ -29,6 +29,13 @@ Not exhaustive list of things I want to implement. Will be updated from time to 
 - [X] Add peer reaper: when timeout, should check if some peers are not alive and KILL them.
 - [X] Begin RAFT
 - [X] Use msgpack for message content (first frame is address, second is message ID, third is binary content)
-- [ ] Simple election + timeout in raft
+- [X] Simple election + timeout in raft
+- [ ] Generation script -> Add from in message handler
 - [ ] Generation script -> create enum from messages
 - [ ] Generation script -> Create msg_handler class
+- [ ] Raft: Create Raft state (persistent)
+- [ ] Raft: Create Raft state (in memory)
+- [ ] Raft: Create small cluster client to get leader ID
+    - on server side, need another thread to wait for client request. Threads
+      will communicate using zmq sockets so need another loop
+    - on client side, just connect with zmq (python for fun?)
