@@ -19,6 +19,11 @@ WORKDIR /app
 
 RUN mkdir build && cd build && conan install ..
 
+RUN apt-get install -y git
+RUN git clone https://github.com/msgpack/msgpack-c.git /app/msgpack
+
+RUN cd /app/msgpack && mkdir build && cd build && cmake .. && make && make install
+
 # Just compile the code
 FROM step1 as step2
 

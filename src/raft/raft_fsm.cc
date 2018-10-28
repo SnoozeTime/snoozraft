@@ -68,7 +68,7 @@ void RaftFSM::before_follower() {
 
     auto random_integer = uni(rng);
     BOOST_LOG_TRIVIAL(info) << "Timeout for follower is " << random_integer << " milliseconds";
-    node_->loop().add_timeout(std::chrono::milliseconds{random_integer}, [this] {
+    raft_timer_ = node_->loop().add_timeout(std::chrono::milliseconds{random_integer}, [this] {
         BOOST_LOG_TRIVIAL(info) << "Follower timeout. Will start new election";
 
         // should be candidate here. Just for testing
