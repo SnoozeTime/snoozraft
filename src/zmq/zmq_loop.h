@@ -80,7 +80,7 @@ private:
 class ZmqLoop {
 public:
 
-    explicit ZmqLoop(zmq::context_t *context);
+    ZmqLoop(std::string loop_name, zmq::context_t *context);
 
     /// Add a listener (zmq::socket_t) to the loop
     ///

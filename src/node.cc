@@ -24,7 +24,7 @@ Node::Node(Config conf):
     conf_{std::move(conf)},
     my_address_{"tcp://" + conf_.host() + ":" + conf_.port()},
     raft_{this},
-    frontend_{zmq_context_, 4444},
+    frontend_{zmq_context_, conf_.client_port()},
     frontend_thread_([this] { frontend_.run();})
     {
 }
@@ -186,6 +186,14 @@ void Node::handle_client_request() {
     auto addr = frames[0];
 
     // Are we leader? Raft knows it.
+    if (raft_.leader_addr() == my_address()) {
+        // process request
+        ZmqMessage ok_i_am_leader{addr, "LEADER"};
+        send_message(client_backend_, ok_i_am_leader);
+    } else {
+        ZmqMessage not_leader{addr, "NOT_LEADER", raft_.leader_addr()};
+        send_message(client_backend_, not_leader);
+    }
 
 }
 

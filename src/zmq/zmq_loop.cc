@@ -63,11 +63,11 @@ void Timer::reset(std::chrono::milliseconds timeout) {
     reset();
 }
 
-ZmqLoop::ZmqLoop(zmq::context_t *context):
+ZmqLoop::ZmqLoop(std::string loop_name, zmq::context_t *context):
     context_(context),
     shutdown_socket_{*context, ZMQ_PULL}{
     // Hum what happens if multiple loop?
-    shutdown_socket_.bind("inproc://zmq_loop");
+    shutdown_socket_.bind("inproc://" + loop_name + "_loop");
 
     add_zmq_socket(shutdown_socket_, [this] () {
         should_run = false;

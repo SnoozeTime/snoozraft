@@ -22,7 +22,7 @@ class ConfigImpl {
 
 public:
 
-    virtual ~ConfigImpl() {}
+    virtual ~ConfigImpl() = default;
 
     virtual void validate() = 0;
 
@@ -41,6 +41,10 @@ public:
     ///
     /// \return host where this node is listening
     virtual std::string host() const = 0;
+
+    ///
+    /// \return the port of the client frontend
+    virtual std::string client_port() const = 0;
 };
 
 class Config {
@@ -72,6 +76,10 @@ public:
     /// \return port where this node is listening
     std::string port() const {
         return impl_->port();
+    }
+
+    std::string client_port() const {
+        return impl_->client_port();
     }
 
 
@@ -128,6 +136,7 @@ public:
     /// \return host where this node is listening
     std::string host() const override;
 
+    std::string client_port() const override;
 
 private:
     nlohmann::json json_;
@@ -140,6 +149,7 @@ public:
 
     constexpr static char HOST_ENV[] = "SNOOZ_HOST";
     constexpr static char PORT_ENV[] = "SNOOZ_PORT";
+    constexpr static char CLIENT_PORT_ENV[] = "SNOOZ_CLIENT_PORT";
     constexpr static char IS_BOOTSTRAP_ENV[] = "SNOOZ_BOOTSTRAP";
     constexpr static char BOOTSTRAP_NODES_ENV[] = "SNOOZ_BOOTSTRAP_NODES";
 
@@ -164,12 +174,14 @@ public:
     /// \return host where this node is listening
     std::string host() const override;
 
+    std::string client_port() const override;
 private:
     // Comma separated.
     std::vector<std::string> bootstrap_nodes_;
     bool is_bootstrap_;
     std::string port_;
     std::string host_;
+    std::string client_port_;
 };
 
 

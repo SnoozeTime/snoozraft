@@ -11,3 +11,4 @@ python_version = "3.5"
 [packages]
 pyyaml = "*"
 "jinja2" = "*"
+pyzmq = "*"

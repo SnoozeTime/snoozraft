@@ -10,7 +10,10 @@ services:
       SNOOZ_BOOTSTRAP: "Y"
       SNOOZ_HOST: "boostrap1"
       SNOOZ_PORT: "5678"
+      SNOOZ_CLIENT_PORT: "4444"
       SNOOZ_BOOTSTRAP_NODES: "tcp://bootstrap1:5678"
+    ports:
+      - 4444:4444
     networks:
       - snoozraft
 
@@ -19,7 +22,10 @@ services:
     environment:
       SNOOZ_HOST: "peer1"
       SNOOZ_PORT: "5678"
+      SNOOZ_CLIENT_PORT: "4444"
       SNOOZ_BOOTSTRAP_NODES: "tcp://bootstrap1:5678"
+    ports:
+      - 4445:4444
     networks:
     - snoozraft
 
@@ -28,6 +34,9 @@ services:
     environment:
       SNOOZ_HOST: "peer2"
       SNOOZ_PORT: "5678"
+      SNOOZ_CLIENT_PORT: "4444"
       SNOOZ_BOOTSTRAP_NODES: "tcp://bootstrap1:5678"
+    ports:
+      - 4446:4444
     networks:
       - snoozraft

@@ -13,7 +13,7 @@ using namespace std::literals;
 TEST(zmq_loop, basic_usage) {
 
     zmq::context_t context{1};
-    snooz::ZmqLoop loop{&context};
+    snooz::ZmqLoop loop{"", &context};
 
     std::thread t{[&loop] {
         loop.run();
@@ -24,7 +24,7 @@ TEST(zmq_loop, basic_usage) {
 
 TEST(zmq_loop, recurrent_timer) {
     zmq::context_t context{1};
-    snooz::ZmqLoop loop{&context};
+    snooz::ZmqLoop loop{"", &context};
 
     int i = 0;
     loop.add_timeout(200ms, [&i] { i++; });
@@ -39,7 +39,7 @@ TEST(zmq_loop, recurrent_timer) {
 
 TEST(zmq_loop, remove_timer) {
     zmq::context_t context{1};
-    snooz::ZmqLoop loop{&context};
+    snooz::ZmqLoop loop{"", &context};
 
     int i = 0;
     snooz::Handle to_cancel = loop.add_timeout(200ms, [&i] { i++; });
@@ -65,7 +65,7 @@ TEST(zmq_loop, add_and_remove_socket) {
     zmq::socket_t worker{context, ZMQ_PULL};
     worker.bind("tcp://*:44444");
 
-    snooz::ZmqLoop loop{&context};
+    snooz::ZmqLoop loop{"", &context};
 
     int count = 0;
 

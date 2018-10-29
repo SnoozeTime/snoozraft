@@ -3,6 +3,9 @@
 		"host": "localhost",
 		"port": "5557"
     },
+	"client": {
+		"port": "4446"
+	},
     "membership": {
 	"bootstrap_nodes": [
 	    "tcp://localhost:5555"

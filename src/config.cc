@@ -52,18 +52,24 @@ std::string JsonConfigImpl::host() const {
     return json_["node"]["host"];
 }
 
+std::string JsonConfigImpl::client_port() const {
+    return json_["client"]["port"];
+}
+
 // ====================================================
 // Configuration from environment variables. Easier to
 // use with Docker
 // ====================================================
 constexpr char EnvConfigImpl::HOST_ENV[];
 constexpr char EnvConfigImpl::PORT_ENV[];
+constexpr char EnvConfigImpl::CLIENT_PORT_ENV[];
 constexpr char EnvConfigImpl::IS_BOOTSTRAP_ENV[];
 constexpr char EnvConfigImpl::BOOTSTRAP_NODES_ENV[];
 
 EnvConfigImpl::EnvConfigImpl():
     port_(snooz::getenv(PORT_ENV)),
-    host_(snooz::getenv(HOST_ENV)) {
+    host_(snooz::getenv(HOST_ENV)),
+    client_port_(snooz::getenv(CLIENT_PORT_ENV)){
 
     auto is_bootstrap_str = snooz::getenv(std::string(IS_BOOTSTRAP_ENV));
     is_bootstrap_ = is_bootstrap_str == "Y" || is_bootstrap_str == "True";
@@ -100,6 +106,10 @@ std::string EnvConfigImpl::port() const {
 
 std::string EnvConfigImpl::host() const {
     return host_;
+}
+
+std::string EnvConfigImpl::client_port() const {
+    return std::__cxx11::string();
 }
 
 }

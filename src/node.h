@@ -69,7 +69,7 @@ private:
     Config conf_;
     zmq::context_t zmq_context_{1};
 
-    ZmqLoop loop_{&zmq_context_};
+    ZmqLoop loop_{"node", &zmq_context_};
 
     zmq::socket_t server_{zmq_context_, ZMQ_ROUTER};
     // Receives request router from front end.
