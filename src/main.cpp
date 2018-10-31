@@ -2,37 +2,21 @@
 #include "node.h"
 #include <boost/program_options.hpp>
 #include <boost/log/trivial.hpp>
-#include <boost/log/utility/setup/console.hpp>
 
-#include <boost/log/core.hpp>
-#include <boost/log/trivial.hpp>
-#include <boost/log/expressions.hpp>
-#include <boost/log/sinks/text_file_backend.hpp>
-#include <boost/log/utility/setup/file.hpp>
-#include <boost/log/utility/setup/common_attributes.hpp>
-#include <boost/log/sources/severity_logger.hpp>
-#include <boost/log/sources/record_ostream.hpp>
-
-namespace logging = boost::log;
-namespace src = boost::log::sources;
-namespace sinks = boost::log::sinks;
-
+#include "log.h"
 
 namespace po = boost::program_options;
 
-void init_logging() {
-    boost::log::add_console_log(std::cout,
-            boost::log::keywords::auto_flush = true,
-            boost::log::keywords::format = "[%TimeStamp%]: %Message%");
-}
 int main(int argc, char** argv) {
-    init_logging();
 
+    init("snoozraft");
+    BOOST_LOG(app_logger::get()) << "hi";
     po::options_description desc("Command line options");
     desc.add_options()
             ("help", "print help")
             ("config_type", po::value<std::string>(), "where to load config - Can be ENV or JSON")
-            ("config_file", po::value<std::string>(), "File where the configuration is store. Only in case of JSON");
+            ("config_file", po::value<std::string>(), "File where the configuration is store. Only in case of JSON")
+            ("log_name", po::value<std::string>(), "Path of log");
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -70,6 +54,7 @@ int main(int argc, char** argv) {
     }
 
     snooz::Config conf{impl};
+
     snooz::Node node{std::move(conf)};node.start();
 
     return 0;

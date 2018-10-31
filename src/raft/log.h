@@ -21,6 +21,7 @@ public:
     int term() const;
     std::string content() const;
 private:
+
     int term_{0};
     std::string content_{};
 };

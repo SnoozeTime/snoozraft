@@ -17,6 +17,9 @@
 #include "raft/raft_fsm.h"
 #include "protocol/msg_handler.h"
 
+#include <boost/log/sources/channel_feature.hpp>
+#include <boost/log/sources/channel_logger.hpp>
+
 namespace snooz {
 
 ///
@@ -64,6 +67,9 @@ private:
     void add_peer(const std::string& addr);
 
     void handle_client_request();
+
+    // Logger for this class
+    boost::log::sources::channel_logger<> log_;
 
 
     Config conf_;

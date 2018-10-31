@@ -9,6 +9,9 @@
 #include "protocol/msg_handler.h"
 #include "handle.h"
 
+#include <boost/log/sources/channel_feature.hpp>
+#include <boost/log/sources/channel_logger.hpp>
+
 namespace snooz {
 
 class Node;
@@ -77,6 +80,9 @@ private:
     void send_to_peer(const std::string& peer_id, const ZmqMessage& msg);
 
     void send_hearbeat();
+
+    // Logger for this class
+    boost::log::sources::channel_logger<> log_;
 
     std::random_device rd;     // only used once to initialise (seed) engine
     std::mt19937 rng{rd()};    // random-number engine used (Mersenne-Twister in this case)

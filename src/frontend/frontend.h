@@ -7,6 +7,9 @@
 #include "zmq/zmq_helpers.h"
 #include "zmq/zmq_loop.h"
 
+#include <boost/log/sources/channel_feature.hpp>
+#include <boost/log/sources/channel_logger.hpp>
+
 namespace snooz {
 
 /// Front-end is the client facing interface.
@@ -29,6 +32,9 @@ private:
 
     /// Response from raft backend
     void handle_backend_response();
+
+    // Logger for this class
+    boost::log::sources::channel_logger<> log_;
 
     ZmqLoop loop_;
     zmq::socket_t frontend_;

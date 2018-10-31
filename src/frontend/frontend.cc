@@ -9,6 +9,7 @@
 
 namespace snooz {
 Frontend::Frontend(zmq::context_t &context, std::string port) :
+    log_(boost::log::keywords::channel = "CLIENT"),
     loop_{"frontend", &context},
     frontend_{context, ZMQ_ROUTER},
     backend_{context, ZMQ_DEALER},
@@ -20,13 +21,13 @@ void Frontend::stop() {
 }
 
 void Frontend::run() {
-    BOOST_LOG_TRIVIAL(info) << "Start client frontend";
+    BOOST_LOG(log_) << "Start client frontend";
 
     // ------------------------------
     // First setup the frontend
     // Bind to a fixed port
     // ------------------------------
-    BOOST_LOG_TRIVIAL(info) << "Connect frontend socket";
+    BOOST_LOG(log_) << "Connect frontend socket";
     std::stringstream addr_stream;
     addr_stream << "tcp://*:" << port_;
     frontend_.bind(addr_stream.str());
@@ -38,7 +39,7 @@ void Frontend::run() {
     // Then connect to the backend using the inproc
     // (same process) endpoint.
     // --------------------------------------------
-    BOOST_LOG_TRIVIAL(info) << "Connect backend socket";
+    BOOST_LOG(log_) << "Connect backend socket";
     addr_stream.str("");
     addr_stream << "inproc://request_backend";
     backend_.connect(addr_stream.str());
@@ -52,7 +53,7 @@ void Frontend::run() {
 void Frontend::handle_client_request() {
     ZmqMessage msg = receive_message(frontend_);
 
-    BOOST_LOG_TRIVIAL(info) << "Received message from client";
+    BOOST_LOG(log_) << "Received message from client";
     // for now just forward to the backend.
     send_message(backend_, msg);
 }
@@ -60,7 +61,7 @@ void Frontend::handle_client_request() {
 void Frontend::handle_backend_response() {
     ZmqMessage msg = receive_message(backend_);
 
-    BOOST_LOG_TRIVIAL(info) << "Send message to client";
+    BOOST_LOG(log_) << "Send message to client";
     // First frame is the addr to send to.
     // Second frame is the response, so can send it as it is through the router.
     send_message(frontend_, msg);

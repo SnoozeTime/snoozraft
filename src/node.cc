@@ -21,12 +21,14 @@ using std::literals::operator""ms;
 namespace snooz {
 
 Node::Node(Config conf):
+    log_(boost::log::keywords::channel = "NODE"),
     conf_{std::move(conf)},
     my_address_{"tcp://" + conf_.host() + ":" + conf_.port()},
     raft_{this},
     frontend_{zmq_context_, conf_.client_port()},
     frontend_thread_([this] { frontend_.run();})
     {
+
 }
 
 Node::~Node() {
@@ -37,18 +39,18 @@ Node::~Node() {
 void Node::start() {
     std::stringstream ss;
     ss << "tcp://*:" << conf_.port();
-    BOOST_LOG_TRIVIAL(info) << "Node will bing to " << ss.str();
+    BOOST_LOG(log_) << "Node will bing to " << ss.str();
     server_.bind(ss.str());
 
     // Now say hello to everybody.
     if (!conf_.is_bootstrap()) {
-        BOOST_LOG_TRIVIAL(info) << "Will connect to bootstrap peers";
+        BOOST_LOG(log_) << "Will connect to bootstrap peers";
         for (const auto& bootstrap : conf_.bootstrap_nodes()) {
             // The key must be the same as the one the router will create. To do so, each bootstrap nodes have to set
             // an identity for their dealers.
             add_peer(bootstrap);
             Message join_message{std::make_unique<JoinMessage>(my_address_)};
-            BOOST_LOG_TRIVIAL(info) << "connect to " << bootstrap;
+            BOOST_LOG(log_) << "connect to " << bootstrap;
             peers_.at(bootstrap).send(join_message.pack());
         }
     }
@@ -69,11 +71,11 @@ void Node::start() {
 
     // TODO need to make this configurable
     loop_.add_timeout(5000ms, [this]() {
-        BOOST_LOG_TRIVIAL(debug) << "Heartbeat timeout";
+        BOOST_LOG(log_) << "Heartbeat timeout";
         send_heartbeat();
     });
     loop_.add_timeout(10000ms, [this]() {
-        BOOST_LOG_TRIVIAL(debug) << "Peer garbage collector timeout";
+        BOOST_LOG(log_) << "Peer garbage collector timeout";
         reap_dead_bodies();
     });
 
@@ -84,7 +86,7 @@ void Node::start() {
 // Will route message to correct handler.
 void Node::handle_message(const ZmqMessage& message) {
 
-    BOOST_LOG_TRIVIAL(debug) << "Received message";
+    BOOST_LOG(log_) << "Received message";
     // Address is always first.
     const auto& frames = message.frames();
 
@@ -95,7 +97,7 @@ void Node::handle_message(const ZmqMessage& message) {
     // Always do that. If the peer already exists, we do nothing. If it does not, we will add it
     if (peers_.find(addr) == peers_.end()) {
 
-        BOOST_LOG_TRIVIAL(debug) << "will add new peer. Address is " << addr << " : " << frames[2];
+        BOOST_LOG(log_) << "will add new peer. Address is " << addr << " : " << frames[2];
         // It's a new peer. We need to add it.
         // If the node is a bootstrap, we need to set the identity of the dealer socket so that the other nodes
         // that will receive the message can find it in their peers_ map.
@@ -130,7 +132,7 @@ void Node::send_heartbeat() {
 }
 
 void Node::reap_dead_bodies() {
-    BOOST_LOG_TRIVIAL(info) << "IT IS TIME TO REAP!";
+    BOOST_LOG(log_) << "IT IS TIME TO REAP!";
     std::vector<std::string> to_reap;
     for (auto& entry: peers_) {
         if (!entry.second.is_alive()) {
@@ -139,7 +141,7 @@ void Node::reap_dead_bodies() {
     }
 
     for (auto& addr: to_reap) {
-        BOOST_LOG_TRIVIAL(info) << "Will reap " << addr << "... Sayonara.";
+        BOOST_LOG(log_) << "Will reap " << addr << "... Sayonara.";
         peers_.erase(addr);
     }
 
@@ -150,7 +152,7 @@ void Node::on_message(const std::string& from, const snooz::PeerListMessage &msg
     for (const auto& addr: msg.peers()) {
         if (addr != my_address_
             && peers_.find(addr) == peers_.end()) {
-            BOOST_LOG_TRIVIAL(info) << "will add peer" << addr << std::endl;
+            BOOST_LOG(log_) << "will add peer" << addr << std::endl;
             add_peer(addr);
         }
     }
@@ -160,7 +162,7 @@ void Node::on_message(const std::string& from, const snooz::HeartbeatMessage &ms
 }
 
 void Node::on_message(const std::string& from, const snooz::JoinMessage &msg) {
-    BOOST_LOG_TRIVIAL(debug) << "Send peers to everybody";
+    BOOST_LOG(log_) << "Send peers to everybody";
     // Need to tell all the peers that we received a new peer connection.
 
     std::vector<std::string> addresses;
@@ -172,7 +174,7 @@ void Node::on_message(const std::string& from, const snooz::JoinMessage &msg) {
     Message peer_list{std::make_unique<PeerListMessage>(addresses)};
     auto msg_to_send = peer_list.pack();
     for (auto &peer : peers_) {
-        BOOST_LOG_TRIVIAL(debug) << "Send peers list to " << peer.first;
+        BOOST_LOG(log_) << "Send peers list to " << peer.first;
         peer.second.send(msg_to_send);
     }
 }

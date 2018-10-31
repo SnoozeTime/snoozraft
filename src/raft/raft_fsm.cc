@@ -18,18 +18,20 @@ using namespace std::literals;
 
 namespace snooz {
 
-RaftFSM::RaftFSM(Node* node): node_(node) {
+RaftFSM::RaftFSM(Node* node):
+    log_(boost::log::keywords::channel = "RAFT"),
+    node_(node) {
 
     //auto random_integer = uni(rng);
-    //BOOST_LOG_TRIVIAL(info) << "Will wait " << random_integer << "before timeout";
+    //BOOST_LOG(log_)(info) << "Will wait " << random_integer << "before timeout";
     raft_timer_ = node_->loop().add_timeout(1s,
             [this] () {
                 // If there are enough peers, start raft consensus.
                 // -1 to say I am included
                 if (node_->peers().size() < minimum_nb_peers_ - 1) {
-                    BOOST_LOG_TRIVIAL(info) << "Less than 3 nodes. Will wait more before starting";
+                    BOOST_LOG(log_) << "Less than 3 nodes. Will wait more before starting";
                 } else {
-                    BOOST_LOG_TRIVIAL(info) << "Will start RAFT";
+                    BOOST_LOG(log_) << "Will start RAFT";
                     // node_->loop().remove_timeout(start_timer_);
                     set_state(RaftState::FOLLOWER);
                 }
@@ -42,7 +44,7 @@ void RaftFSM::handle(const ZmqMessage& msg) {
 }
 
 void RaftFSM::before_candidate() {
-    BOOST_LOG_TRIVIAL(info) << "RAFT -> transition to candidate";
+    BOOST_LOG(log_) << "RAFT -> transition to candidate";
     term_++;
 
     // TODO First approximation of cluster size. Does it represent the reality?
@@ -72,13 +74,13 @@ void RaftFSM::before_leader() {
 
 void RaftFSM::before_follower() {
     // Timeout for next election. This can be canceled when receiving from leader.
-    BOOST_LOG_TRIVIAL(info) << "Before follower transition";
+    BOOST_LOG(log_) << "Before follower transition";
     // Remove whatever timeout was used before
 
     auto random_integer = uni(rng);
-    BOOST_LOG_TRIVIAL(info) << "Timeout for follower is " << random_integer << " milliseconds";
+    BOOST_LOG(log_) << "Timeout for follower is " << random_integer << " milliseconds";
     raft_timer_ = node_->loop().add_timeout(std::chrono::milliseconds{random_integer}, [this] {
-        BOOST_LOG_TRIVIAL(info) << "Follower timeout. Will start new election";
+        BOOST_LOG(log_) << "Follower timeout. Will start new election";
         // should be candidate here. Just for testing
         set_state(RaftState::CANDIDATE);
     });
@@ -162,13 +164,13 @@ void RaftFSM::on_message(const std::string& from, const AppendEntriesRequestMess
         // TODO is it true though? Maybe compare with current term...
         leader_addr_ = from;
 
-        BOOST_LOG_TRIVIAL(info) << "Follower receied AppendEntriesRequest";
+        BOOST_LOG(log_) << "Follower receied AppendEntriesRequest";
         auto* t = node_->loop().get_timer(raft_timer_);
         assert(t != nullptr);
         t->reset();
     } else if (state_ == RaftState::CANDIDATE) {
         leader_addr_ = from;
-        BOOST_LOG_TRIVIAL(info) << "Candidates receive AppendEntriesRequest from leader. Go back to being FOLLOWER";
+        BOOST_LOG(log_) << "Candidates receive AppendEntriesRequest from leader. Go back to being FOLLOWER";
         set_state(RaftState::FOLLOWER);
     }
 }
@@ -178,15 +180,15 @@ void RaftFSM::on_message(const std::string& from, const AppendEntriesReplyMessag
 
 void RaftFSM::on_message(const std::string& from, const RequestVoteRequestMessage &msg) {
 
-    BOOST_LOG_TRIVIAL(info) << "ME: " << node_->my_address() << ":received request vote request message from " << msg.candidate_id() << " addr " << from << " for term " << msg.term();
+    BOOST_LOG(log_) << "ME: " << node_->my_address() << ":received request vote request message from " << msg.candidate_id() << " addr " << from << " for term " << msg.term();
     bool accept = voted_for_.empty();
     // First draft, just send OK idecodedf haven't voted already.
     // TODO include term condition
     if (accept) {
-        BOOST_LOG_TRIVIAL(info) << "ME: " << node_->my_address() << "Will accept request from " << msg.candidate_id();
+        BOOST_LOG(log_) << "ME: " << node_->my_address() << "Will accept request from " << msg.candidate_id();
         voted_for_ = msg.candidate_id();
     } else {
-        BOOST_LOG_TRIVIAL(info) << "ME: " << node_->my_address() << "Reject request. Already voted for " << voted_for_;
+        BOOST_LOG(log_) << "ME: " << node_->my_address() << "Reject request. Already voted for " << voted_for_;
     }
 
     auto reply = make_message<RequestVoteReplyMessage>(term_, accept);
@@ -195,41 +197,41 @@ void RaftFSM::on_message(const std::string& from, const RequestVoteRequestMessag
 
 void RaftFSM::on_message(const std::string& from, const RequestVoteReplyMessage &msg) {
 
-    BOOST_LOG_TRIVIAL(info) << "ME: " << node_->my_address() << ": received RequestVoteReply message from " << from;
+    BOOST_LOG(log_) << "ME: " << node_->my_address() << ": received RequestVoteReply message from " << from;
     if (state_ == RaftState::CANDIDATE) {
         if (msg.vote_granted()) {
             nb_votes_++;
             // majority.
             auto minimum = ceil(static_cast<double>(cluster_size_) / 2);
-            BOOST_LOG_TRIVIAL(info) << " Will need at least " << minimum << " votes";
+            BOOST_LOG(log_) << " Will need at least " << minimum << " votes";
             if (nb_votes_ >= minimum) {
                 // I AM THE GREAT LEADER
-                BOOST_LOG_TRIVIAL(info) << "ME: " << node_->my_address() << ": Becoming leader";
+                BOOST_LOG(log_) << "ME: " << node_->my_address() << ": Becoming leader";
                 set_state(RaftState::LEADER);
             } else {
-                BOOST_LOG_TRIVIAL(info) << "Have " << nb_votes_ << " but need at least " << minimum;
+                BOOST_LOG(log_) << "Have " << nb_votes_ << " but need at least " << minimum;
             }
         } else {
-            BOOST_LOG_TRIVIAL(info) << "Request was not granted *sad face*";
+            BOOST_LOG(log_) << "Request was not granted *sad face*";
         }
     } else {
-        BOOST_LOG_TRIVIAL(info) << "Do not process as I AM NOT A CANDIDATE";
+        BOOST_LOG(log_) << "Do not process as I AM NOT A CANDIDATE";
     }
 
 }
 
 void RaftFSM::send_to_peer(const std::string& peer_id, const ZmqMessage &msg) {
-    BOOST_LOG_TRIVIAL(info) << "Will send to " << peer_id;
+    BOOST_LOG(log_) << "Will send to " << peer_id;
     auto peer = node_->peers().find(peer_id);
     if (peer != node_->peers().end()) {
         (*peer).second.send(msg);
     } else {
-        BOOST_LOG_TRIVIAL(error) << " Cannot find peer: " << peer_id;
+        BOOST_LOG(log_) << " Cannot find peer: " << peer_id;
     }
 }
 
 void RaftFSM::send_hearbeat() {
-    BOOST_LOG_TRIVIAL(info) << "Leader sends heartbeat.";
+    BOOST_LOG(log_) << "Leader sends heartbeat.";
     auto msg = make_message<AppendEntriesRequestMessage>(term_, node_->my_address());
     send_to_peers(msg.pack());
 }
