@@ -63,7 +63,7 @@ void Node::start() {
     // --------------------------------------------
     // Then bind the client backend socket
     // --------------------------------------------
-    client_backend_.connect("inproc://request_backend");
+    client_backend_.bind("inproc://request_backend");
     loop_.add_zmq_socket(client_backend_, [this] {
         handle_client_request();
     });

@@ -9,7 +9,6 @@ namespace po = boost::program_options;
 
 int main(int argc, char** argv) {
 
-    init("snoozraft");
     BOOST_LOG(app_logger::get()) << "hi";
     po::options_description desc("Command line options");
     desc.add_options()
@@ -52,6 +51,13 @@ int main(int argc, char** argv) {
     } else {
         assert(false);
     }
+
+    std::string log_path = "snoozraft";
+    if (vm.count("log_name")) {
+        log_path = vm["log_name"].as<std::string>();
+    }
+    init(log_path);
+
 
     snooz::Config conf{impl};
 
