@@ -35,9 +35,9 @@ Not exhaustive list of things I want to implement. Will be updated from time to 
 - [X] Generation script -> Create msg_handler class
 - [ ] Raft: Create Raft state (persistent)
 - [ ] Raft: Create Raft state (in memory)
-- [ ] Raft: Create small cluster client to get leader ID
+- [X] Raft: Create small cluster client to get leader ID
     - on server side, need another thread to wait for client request. Threads
       will communicate using zmq sockets so need another loop
     - on client side, just connect with zmq (python for fun?)
-- [ ] Logging: Find a way to log differently with node, raft and client processes
+- [X] Logging: Find a way to log differently with node, raft and client processes
 - [ ] VM + State machine

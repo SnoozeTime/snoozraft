@@ -47,8 +47,19 @@ messages:
     elements:
         - name: term
           type: int
+        # This is to redirect client, so has the client port instead of the raft port
         - name: leader_id
           type: "std::string"
+        # index of log preceding the entries we sent
+        - name: prev_log_index
+          type: int
+        - name: prev_log_term
+          type: int
+        # Entries to append to the log. Empty in case of heartbeat.
+        - name: entries
+          type: "std::vector<std::string>"
+        - name: leader_commit
+          type: int
 
   - name: AppendEntriesReply
     msg_type: APPEND_ENTRIES_REPLY
