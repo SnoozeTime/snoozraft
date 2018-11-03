@@ -57,7 +57,7 @@ messages:
           type: int
         # Entries to append to the log. Empty in case of heartbeat.
         - name: entries
-          type: "std::vector<std::string>"
+          type: "std::vector<std::tuple<int, std::string>>"
         - name: leader_commit
           type: int
 

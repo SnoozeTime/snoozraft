@@ -207,4 +207,8 @@ const std::string &Node::my_address() const {
     return my_address_;
 }
 
+std::string Node::my_client_address() const {
+    return "tcp://" + conf_.host() + ":" + conf_.client_port();
+}
+
 }

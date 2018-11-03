@@ -51,6 +51,7 @@ public:
     void on_message(const std::string& from, const JoinMessage &msg) override;
 
     const std::string& my_address() const;
+    std::string my_client_address() const;
 
 private:
 

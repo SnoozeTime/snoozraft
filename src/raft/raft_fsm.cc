@@ -156,6 +156,19 @@ void RaftFSM::set_state(RaftState state) {
 
 void RaftFSM::on_message(const std::string& from, const AppendEntriesRequestMessage &msg) {
 
+    /*
+     * Receiver implementation:
+        1.  Reply false if term < currentTerm (§5.1)
+        2.  Reply false if log doesn’t contain an entry at prevLogIndex
+        whose term matches prevLogTerm (§5.3)
+        3.  If an existing entry conflicts with a new one (same index
+        but different terms), delete the existing entry and all that
+        follow it (§5.3)
+        4.  Append any new entries not already in the log
+        5.  If leaderCommit > commitIndex, set commitIndex =
+        min(leaderCommit, index of last new entry)
+
+     */
     // When follower, reset the timer and add entries. We reset the
     // timer so that a follower does not try to start a new election
     // when the leader is obviously not dead.
@@ -164,10 +177,16 @@ void RaftFSM::on_message(const std::string& from, const AppendEntriesRequestMess
         // TODO is it true though? Maybe compare with current term...
         leader_addr_ = from;
 
-        BOOST_LOG(log_) << "Follower receied AppendEntriesRequest";
+        BOOST_LOG(log_) << "Follower received AppendEntriesRequest";
         auto* t = node_->loop().get_timer(raft_timer_);
         assert(t != nullptr);
         t->reset();
+
+        // check the term.
+
+        // Check previous log index.
+
+        
     } else if (state_ == RaftState::CANDIDATE) {
         leader_addr_ = from;
         BOOST_LOG(log_) << "Candidates receive AppendEntriesRequest from leader. Go back to being FOLLOWER";
@@ -232,12 +251,28 @@ void RaftFSM::send_to_peer(const std::string& peer_id, const ZmqMessage &msg) {
 
 void RaftFSM::send_hearbeat() {
     BOOST_LOG(log_) << "Leader sends heartbeat.";
-    auto msg = make_message<AppendEntriesRequestMessage>(term_, node_->my_address());
+    auto msg = make_message<AppendEntriesRequestMessage>(
+            term_, // current term
+            node_->my_client_address(), // Address of the public interface to the leader.
+            0,
+            0,
+            std::vector<std::string>(),
+            0);
     send_to_peers(msg.pack());
 }
 
 std::string RaftFSM::leader_addr() {
     return leader_addr_;
+}
+
+bool RaftFSM::submit_entry(const std::string &entry) {
+    if (state_ != RaftState::LEADER) {
+        BOOST_LOG(log_) << "Submitted entry to node, but is not leader...";
+        return false;
+    }
+
+
+    return true;
 }
 
 

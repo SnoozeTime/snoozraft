@@ -5,6 +5,8 @@
 #pragma once
 
 #include <string>
+#include <vector>
+
 namespace snooz {
 
 class LogEntry {
@@ -25,4 +27,22 @@ private:
     int term_{0};
     std::string content_{};
 };
+
+///
+/// Persisted log on each server.
+/// Index begins at 1!
+class Log {
+
+public:
+
+    // Overwrite everything from index
+    void overwrite(size_t from, std::vector<LogEntry> entries);
+
+    // Index begins at 1!
+    const LogEntry& operator[](size_t index) const; //optional
+private:
+
+    std::vector<LogEntry> entries_;
+};
+
 }

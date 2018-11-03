@@ -38,4 +38,14 @@ std::string LogEntry::content() const {
 }
 
 
+const LogEntry &Log::operator[](size_t index) const {
+    assert(index > 0); // from 1.
+    return entries_[index-1]; // boooom
+}
+
+void Log::overwrite(size_t from, std::vector<LogEntry> entries) {
+    // what happen if from is > size?
+}
+
+
 }

@@ -47,6 +47,9 @@ public:
 
     void set_state(RaftState state);
 
+    // this is an entry that is submitted by the client
+    bool submit_entry(const std::string& entry);
+
     // -----------------------------------
     // HANDLERS FOR SPECIFIC MESSAGES
     // -----------------------------------
@@ -101,8 +104,8 @@ private:
 
     std::string leader_addr_;
 
-    constexpr static int minimum_nb_peers_{3}
-    ;
+    constexpr static int minimum_nb_peers_{3};
+
     // ------------------------
     // Keep a track of timers to be able to cancel them if needed
     // TODO use a container if become too wild
@@ -112,6 +115,20 @@ private:
     // - following -> Timeout if not heartbeat ot start new election
     // - leader -> to send heartbeat if haven't sent anything yet.
     Handle raft_timer_;
+
+    // -------------------------------------------
+    // State for all nodes
+    // -------------------------------------------
+    int commit_index_{0};
+    int last_applied_{0};
+
+    // --------------------------------------------------------
+    // Leader state
+    // --------------------------------------------------------
+    // We need to keep in memory for the leader from what index have we
+    // sent the log to the followers.
+    std::unordered_map<std::string, int> next_indexes_;
+    std::unordered_map<std::string, int> match_indexes_;
 };
 }
 

@@ -13,12 +13,23 @@ class AppendEntriesRequestMessage : public MessageData {
 public:
   AppendEntriesRequestMessage() = default;
 
-  AppendEntriesRequestMessage(int term, std::string leader_id)
+  AppendEntriesRequestMessage(int term, std::string leader_id,
+                              int prev_log_index, int prev_log_term,
+                              std::vector<std::string> entries,
+                              int leader_commit)
       :
 
         term_(std::move(term)),
 
-        leader_id_(std::move(leader_id)) {}
+        leader_id_(std::move(leader_id)),
+
+        prev_log_index_(std::move(prev_log_index)),
+
+        prev_log_term_(std::move(prev_log_term)),
+
+        entries_(std::move(entries)),
+
+        leader_commit_(std::move(leader_commit)) {}
 
   // Default move because the types should be trivials..
   AppendEntriesRequestMessage(AppendEntriesRequestMessage &&other) noexcept =
@@ -49,6 +60,30 @@ public:
       auto o = oh.get();
       leader_id_ = o.as<std::string>();
     }
+
+    {
+      auto oh = msgpack::unpack(ss.c_str(), ss.size(), offset);
+      auto o = oh.get();
+      prev_log_index_ = o.as<int>();
+    }
+
+    {
+      auto oh = msgpack::unpack(ss.c_str(), ss.size(), offset);
+      auto o = oh.get();
+      prev_log_term_ = o.as<int>();
+    }
+
+    {
+      auto oh = msgpack::unpack(ss.c_str(), ss.size(), offset);
+      auto o = oh.get();
+      entries_ = o.as<std::vector<std::string>>();
+    }
+
+    {
+      auto oh = msgpack::unpack(ss.c_str(), ss.size(), offset);
+      auto o = oh.get();
+      leader_commit_ = o.as<int>();
+    }
   }
 
   void pack(std::stringstream &ss) override {
@@ -56,6 +91,14 @@ public:
     msgpack::pack(ss, term_);
 
     msgpack::pack(ss, leader_id_);
+
+    msgpack::pack(ss, prev_log_index_);
+
+    msgpack::pack(ss, prev_log_term_);
+
+    msgpack::pack(ss, entries_);
+
+    msgpack::pack(ss, leader_commit_);
   }
 
   // Then Getters and setters
@@ -66,6 +109,26 @@ public:
   void set_leader_id(const std::string &leader_id) { leader_id_ = leader_id; }
   const std::string &leader_id() const { return leader_id_; }
 
+  void set_prev_log_index(const int &prev_log_index) {
+    prev_log_index_ = prev_log_index;
+  }
+  const int &prev_log_index() const { return prev_log_index_; }
+
+  void set_prev_log_term(const int &prev_log_term) {
+    prev_log_term_ = prev_log_term;
+  }
+  const int &prev_log_term() const { return prev_log_term_; }
+
+  void set_entries(const std::vector<std::string> &entries) {
+    entries_ = entries;
+  }
+  const std::vector<std::string> &entries() const { return entries_; }
+
+  void set_leader_commit(const int &leader_commit) {
+    leader_commit_ = leader_commit;
+  }
+  const int &leader_commit() const { return leader_commit_; }
+
   // double dispatch to avoid casting.
   //  void dispatch(MessageHandler* handler) override {
   //  handler->handle(*this);
@@ -75,5 +138,13 @@ private:
   int term_{};
 
   std::string leader_id_{};
+
+  int prev_log_index_{};
+
+  int prev_log_term_{};
+
+  std::vector<std::string> entries_{};
+
+  int leader_commit_{};
 };
 }
