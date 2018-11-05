@@ -15,7 +15,7 @@ public:
 
   AppendEntriesRequestMessage(int term, std::string leader_id,
                               int prev_log_index, int prev_log_term,
-                              std::vector<std::string> entries,
+                              std::vector<std::tuple<int, std::string>> entries,
                               int leader_commit)
       :
 
@@ -76,7 +76,7 @@ public:
     {
       auto oh = msgpack::unpack(ss.c_str(), ss.size(), offset);
       auto o = oh.get();
-      entries_ = o.as<std::vector<std::string>>();
+      entries_ = o.as<std::vector<std::tuple<int, std::string>>>();
     }
 
     {
@@ -119,10 +119,12 @@ public:
   }
   const int &prev_log_term() const { return prev_log_term_; }
 
-  void set_entries(const std::vector<std::string> &entries) {
+  void set_entries(const std::vector<std::tuple<int, std::string>> &entries) {
     entries_ = entries;
   }
-  const std::vector<std::string> &entries() const { return entries_; }
+  const std::vector<std::tuple<int, std::string>> &entries() const {
+    return entries_;
+  }
 
   void set_leader_commit(const int &leader_commit) {
     leader_commit_ = leader_commit;
@@ -143,7 +145,7 @@ private:
 
   int prev_log_term_{};
 
-  std::vector<std::string> entries_{};
+  std::vector<std::tuple<int, std::string>> entries_{};
 
   int leader_commit_{};
 };

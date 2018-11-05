@@ -53,6 +53,7 @@ public:
     const std::string& my_address() const;
     std::string my_client_address() const;
 
+
 private:
 
     // Will route message to correct handler.

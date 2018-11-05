@@ -22,6 +22,8 @@ RaftFSM::RaftFSM(Node* node):
     log_(boost::log::keywords::channel = "RAFT"),
     node_(node) {
 
+    UNUSED(commit_index_);
+    UNUSED(last_applied_);
     //auto random_integer = uni(rng);
     //BOOST_LOG(log_)(info) << "Will wait " << random_integer << "before timeout";
     raft_timer_ = node_->loop().add_timeout(1s,
@@ -39,9 +41,6 @@ RaftFSM::RaftFSM(Node* node):
 
 }
 
-void RaftFSM::handle(const ZmqMessage& msg) {
-
-}
 
 void RaftFSM::before_candidate() {
     BOOST_LOG(log_) << "RAFT -> transition to candidate";
@@ -182,14 +181,16 @@ void RaftFSM::on_message(const std::string& from, const AppendEntriesRequestMess
         assert(t != nullptr);
         t->reset();
 
-        // check the term.
+        client_leader_addr_ = msg.leader_id();
 
+        // check the term.
         // Check previous log index.
 
-        
+
     } else if (state_ == RaftState::CANDIDATE) {
         leader_addr_ = from;
         BOOST_LOG(log_) << "Candidates receive AppendEntriesRequest from leader. Go back to being FOLLOWER";
+        client_leader_addr_ = msg.leader_id();
         set_state(RaftState::FOLLOWER);
     }
 }
@@ -241,7 +242,7 @@ void RaftFSM::on_message(const std::string& from, const RequestVoteReplyMessage 
 
 void RaftFSM::send_to_peer(const std::string& peer_id, const ZmqMessage &msg) {
     BOOST_LOG(log_) << "Will send to " << peer_id;
-    auto peer = node_->peers().find(peer_id);
+   auto peer = node_->peers().find(peer_id);
     if (peer != node_->peers().end()) {
         (*peer).second.send(msg);
     } else {
@@ -251,12 +252,16 @@ void RaftFSM::send_to_peer(const std::string& peer_id, const ZmqMessage &msg) {
 
 void RaftFSM::send_hearbeat() {
     BOOST_LOG(log_) << "Leader sends heartbeat.";
+//   AppendEntriesRequestMessage(int term, std::string leader_id,
+  //                            int prev_log_index, int prev_log_term,
+    //                          std::vector<std::tuple<int, std::string>> entries,
+      //                        int leader_commit)
     auto msg = make_message<AppendEntriesRequestMessage>(
             term_, // current term
             node_->my_client_address(), // Address of the public interface to the leader.
             0,
             0,
-            std::vector<std::string>(),
+            std::vector<std::tuple<int, std::string>>(),
             0);
     send_to_peers(msg.pack());
 }
@@ -265,13 +270,19 @@ std::string RaftFSM::leader_addr() {
     return leader_addr_;
 }
 
-bool RaftFSM::submit_entry(const std::string &entry) {
+const std::string& RaftFSM::leader_client_addr() const {
+    return client_leader_addr_;
+}
+
+bool RaftFSM::append_to_log(const std::string &entry) {
     if (state_ != RaftState::LEADER) {
         BOOST_LOG(log_) << "Submitted entry to node, but is not leader...";
         return false;
     }
+    
+    // First add to the log !
 
-
+    // Then, send a message to everybody. Everybody should send either ok or not OK + reason
     return true;
 }
 

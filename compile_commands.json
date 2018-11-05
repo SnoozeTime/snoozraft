@@ -1,0 +1,112 @@
+[
+{
+  "directory": "/home/benoit/CLionProjects/snoozraft2/cmake-build-debug/googletest-release-1.7.0",
+  "command": "/usr/bin/c++    -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0/include -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0  -g     -DGTEST_HAS_PTHREAD=1   -std=gnu++14 -o CMakeFiles/gtest.dir/src/gtest-all.cc.o -c /home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0/src/gtest-all.cc",
+  "file": "/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0/src/gtest-all.cc"
+},
+{
+  "directory": "/home/benoit/CLionProjects/snoozraft2/cmake-build-debug/googletest-release-1.7.0",
+  "command": "/usr/bin/c++    -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0/include -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0  -g     -DGTEST_HAS_PTHREAD=1   -std=gnu++14 -o CMakeFiles/gtest_main.dir/src/gtest_main.cc.o -c /home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0/src/gtest_main.cc",
+  "file": "/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0/src/gtest_main.cc"
+},
+{
+  "directory": "/home/benoit/CLionProjects/snoozraft2/cmake-build-debug/src",
+  "command": "/usr/bin/c++   -DBOOST_LOG_DYN_LINK -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0/include -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0 -I/home/benoit/.conan/data/jsonformoderncpp/3.2.0/vthiery/stable/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/include -I/home/benoit/.conan/data/yaml-cpp/0.6.2/bincrafters/stable/package/8a672d2a861a76ab51d514e456102f6443ec5709/include -I/home/benoit/CLionProjects/snoozraft2/src  -Wall -Werror -g    -std=gnu++14 -o CMakeFiles/snoozraft.dir/string_utils.cc.o -c /home/benoit/CLionProjects/snoozraft2/src/string_utils.cc",
+  "file": "/home/benoit/CLionProjects/snoozraft2/src/string_utils.cc"
+},
+{
+  "directory": "/home/benoit/CLionProjects/snoozraft2/cmake-build-debug/src",
+  "command": "/usr/bin/c++   -DBOOST_LOG_DYN_LINK -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0/include -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0 -I/home/benoit/.conan/data/jsonformoderncpp/3.2.0/vthiery/stable/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/include -I/home/benoit/.conan/data/yaml-cpp/0.6.2/bincrafters/stable/package/8a672d2a861a76ab51d514e456102f6443ec5709/include -I/home/benoit/CLionProjects/snoozraft2/src  -Wall -Werror -g    -std=gnu++14 -o CMakeFiles/snoozraft.dir/zmq/zmq_helpers.cc.o -c /home/benoit/CLionProjects/snoozraft2/src/zmq/zmq_helpers.cc",
+  "file": "/home/benoit/CLionProjects/snoozraft2/src/zmq/zmq_helpers.cc"
+},
+{
+  "directory": "/home/benoit/CLionProjects/snoozraft2/cmake-build-debug/src",
+  "command": "/usr/bin/c++   -DBOOST_LOG_DYN_LINK -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0/include -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0 -I/home/benoit/.conan/data/jsonformoderncpp/3.2.0/vthiery/stable/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/include -I/home/benoit/.conan/data/yaml-cpp/0.6.2/bincrafters/stable/package/8a672d2a861a76ab51d514e456102f6443ec5709/include -I/home/benoit/CLionProjects/snoozraft2/src  -Wall -Werror -g    -std=gnu++14 -o CMakeFiles/snoozraft.dir/node.cc.o -c /home/benoit/CLionProjects/snoozraft2/src/node.cc",
+  "file": "/home/benoit/CLionProjects/snoozraft2/src/node.cc"
+},
+{
+  "directory": "/home/benoit/CLionProjects/snoozraft2/cmake-build-debug/src",
+  "command": "/usr/bin/c++   -DBOOST_LOG_DYN_LINK -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0/include -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0 -I/home/benoit/.conan/data/jsonformoderncpp/3.2.0/vthiery/stable/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/include -I/home/benoit/.conan/data/yaml-cpp/0.6.2/bincrafters/stable/package/8a672d2a861a76ab51d514e456102f6443ec5709/include -I/home/benoit/CLionProjects/snoozraft2/src  -Wall -Werror -g    -std=gnu++14 -o CMakeFiles/snoozraft.dir/peer.cc.o -c /home/benoit/CLionProjects/snoozraft2/src/peer.cc",
+  "file": "/home/benoit/CLionProjects/snoozraft2/src/peer.cc"
+},
+{
+  "directory": "/home/benoit/CLionProjects/snoozraft2/cmake-build-debug/src",
+  "command": "/usr/bin/c++   -DBOOST_LOG_DYN_LINK -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0/include -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0 -I/home/benoit/.conan/data/jsonformoderncpp/3.2.0/vthiery/stable/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/include -I/home/benoit/.conan/data/yaml-cpp/0.6.2/bincrafters/stable/package/8a672d2a861a76ab51d514e456102f6443ec5709/include -I/home/benoit/CLionProjects/snoozraft2/src  -Wall -Werror -g    -std=gnu++14 -o CMakeFiles/snoozraft.dir/config.cc.o -c /home/benoit/CLionProjects/snoozraft2/src/config.cc",
+  "file": "/home/benoit/CLionProjects/snoozraft2/src/config.cc"
+},
+{
+  "directory": "/home/benoit/CLionProjects/snoozraft2/cmake-build-debug/src",
+  "command": "/usr/bin/c++   -DBOOST_LOG_DYN_LINK -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0/include -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0 -I/home/benoit/.conan/data/jsonformoderncpp/3.2.0/vthiery/stable/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/include -I/home/benoit/.conan/data/yaml-cpp/0.6.2/bincrafters/stable/package/8a672d2a861a76ab51d514e456102f6443ec5709/include -I/home/benoit/CLionProjects/snoozraft2/src  -Wall -Werror -g    -std=gnu++14 -o CMakeFiles/snoozraft.dir/zmq/zmq_loop.cc.o -c /home/benoit/CLionProjects/snoozraft2/src/zmq/zmq_loop.cc",
+  "file": "/home/benoit/CLionProjects/snoozraft2/src/zmq/zmq_loop.cc"
+},
+{
+  "directory": "/home/benoit/CLionProjects/snoozraft2/cmake-build-debug/src",
+  "command": "/usr/bin/c++   -DBOOST_LOG_DYN_LINK -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0/include -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0 -I/home/benoit/.conan/data/jsonformoderncpp/3.2.0/vthiery/stable/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/include -I/home/benoit/.conan/data/yaml-cpp/0.6.2/bincrafters/stable/package/8a672d2a861a76ab51d514e456102f6443ec5709/include -I/home/benoit/CLionProjects/snoozraft2/src  -Wall -Werror -g    -std=gnu++14 -o CMakeFiles/snoozraft.dir/zmq/message.cc.o -c /home/benoit/CLionProjects/snoozraft2/src/zmq/message.cc",
+  "file": "/home/benoit/CLionProjects/snoozraft2/src/zmq/message.cc"
+},
+{
+  "directory": "/home/benoit/CLionProjects/snoozraft2/cmake-build-debug/src",
+  "command": "/usr/bin/c++   -DBOOST_LOG_DYN_LINK -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0/include -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0 -I/home/benoit/.conan/data/jsonformoderncpp/3.2.0/vthiery/stable/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/include -I/home/benoit/.conan/data/yaml-cpp/0.6.2/bincrafters/stable/package/8a672d2a861a76ab51d514e456102f6443ec5709/include -I/home/benoit/CLionProjects/snoozraft2/src  -Wall -Werror -g    -std=gnu++14 -o CMakeFiles/snoozraft.dir/os.cc.o -c /home/benoit/CLionProjects/snoozraft2/src/os.cc",
+  "file": "/home/benoit/CLionProjects/snoozraft2/src/os.cc"
+},
+{
+  "directory": "/home/benoit/CLionProjects/snoozraft2/cmake-build-debug/src",
+  "command": "/usr/bin/c++   -DBOOST_LOG_DYN_LINK -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0/include -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0 -I/home/benoit/.conan/data/jsonformoderncpp/3.2.0/vthiery/stable/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/include -I/home/benoit/.conan/data/yaml-cpp/0.6.2/bincrafters/stable/package/8a672d2a861a76ab51d514e456102f6443ec5709/include -I/home/benoit/CLionProjects/snoozraft2/src  -Wall -Werror -g    -std=gnu++14 -o CMakeFiles/snoozraft.dir/protocol/message.cc.o -c /home/benoit/CLionProjects/snoozraft2/src/protocol/message.cc",
+  "file": "/home/benoit/CLionProjects/snoozraft2/src/protocol/message.cc"
+},
+{
+  "directory": "/home/benoit/CLionProjects/snoozraft2/cmake-build-debug/src",
+  "command": "/usr/bin/c++   -DBOOST_LOG_DYN_LINK -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0/include -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0 -I/home/benoit/.conan/data/jsonformoderncpp/3.2.0/vthiery/stable/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/include -I/home/benoit/.conan/data/yaml-cpp/0.6.2/bincrafters/stable/package/8a672d2a861a76ab51d514e456102f6443ec5709/include -I/home/benoit/CLionProjects/snoozraft2/src  -Wall -Werror -g    -std=gnu++14 -o CMakeFiles/snoozraft.dir/raft/raft_fsm.cc.o -c /home/benoit/CLionProjects/snoozraft2/src/raft/raft_fsm.cc",
+  "file": "/home/benoit/CLionProjects/snoozraft2/src/raft/raft_fsm.cc"
+},
+{
+  "directory": "/home/benoit/CLionProjects/snoozraft2/cmake-build-debug/src",
+  "command": "/usr/bin/c++   -DBOOST_LOG_DYN_LINK -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0/include -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0 -I/home/benoit/.conan/data/jsonformoderncpp/3.2.0/vthiery/stable/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/include -I/home/benoit/.conan/data/yaml-cpp/0.6.2/bincrafters/stable/package/8a672d2a861a76ab51d514e456102f6443ec5709/include -I/home/benoit/CLionProjects/snoozraft2/src  -Wall -Werror -g    -std=gnu++14 -o CMakeFiles/snoozraft.dir/raft/log.cc.o -c /home/benoit/CLionProjects/snoozraft2/src/raft/log.cc",
+  "file": "/home/benoit/CLionProjects/snoozraft2/src/raft/log.cc"
+},
+{
+  "directory": "/home/benoit/CLionProjects/snoozraft2/cmake-build-debug/src",
+  "command": "/usr/bin/c++   -DBOOST_LOG_DYN_LINK -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0/include -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0 -I/home/benoit/.conan/data/jsonformoderncpp/3.2.0/vthiery/stable/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/include -I/home/benoit/.conan/data/yaml-cpp/0.6.2/bincrafters/stable/package/8a672d2a861a76ab51d514e456102f6443ec5709/include -I/home/benoit/CLionProjects/snoozraft2/src  -Wall -Werror -g    -std=gnu++14 -o CMakeFiles/snoozraft.dir/frontend/frontend.cc.o -c /home/benoit/CLionProjects/snoozraft2/src/frontend/frontend.cc",
+  "file": "/home/benoit/CLionProjects/snoozraft2/src/frontend/frontend.cc"
+},
+{
+  "directory": "/home/benoit/CLionProjects/snoozraft2/cmake-build-debug/src",
+  "command": "/usr/bin/c++   -DBOOST_LOG_DYN_LINK -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0/include -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0 -I/home/benoit/.conan/data/jsonformoderncpp/3.2.0/vthiery/stable/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/include -I/home/benoit/.conan/data/yaml-cpp/0.6.2/bincrafters/stable/package/8a672d2a861a76ab51d514e456102f6443ec5709/include -I/home/benoit/CLionProjects/snoozraft2/src  -Wall -Werror -g    -std=gnu++14 -o CMakeFiles/main.dir/main.cpp.o -c /home/benoit/CLionProjects/snoozraft2/src/main.cpp",
+  "file": "/home/benoit/CLionProjects/snoozraft2/src/main.cpp"
+},
+{
+  "directory": "/home/benoit/CLionProjects/snoozraft2/cmake-build-debug/tests",
+  "command": "/usr/bin/c++   -DBOOST_LOG_DYN_LINK -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0/include -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0 -I/home/benoit/.conan/data/jsonformoderncpp/3.2.0/vthiery/stable/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/include -I/home/benoit/.conan/data/yaml-cpp/0.6.2/bincrafters/stable/package/8a672d2a861a76ab51d514e456102f6443ec5709/include -I/home/benoit/CLionProjects/snoozraft2/src     -g    -std=gnu++14 -o CMakeFiles/log_test.dir/log_test.cc.o -c /home/benoit/CLionProjects/snoozraft2/tests/log_test.cc",
+  "file": "/home/benoit/CLionProjects/snoozraft2/tests/log_test.cc"
+},
+{
+  "directory": "/home/benoit/CLionProjects/snoozraft2/cmake-build-debug/tests",
+  "command": "/usr/bin/c++   -DBOOST_LOG_DYN_LINK -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0/include -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0 -I/home/benoit/.conan/data/jsonformoderncpp/3.2.0/vthiery/stable/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/include -I/home/benoit/.conan/data/yaml-cpp/0.6.2/bincrafters/stable/package/8a672d2a861a76ab51d514e456102f6443ec5709/include -I/home/benoit/CLionProjects/snoozraft2/src     -g    -std=gnu++14 -o CMakeFiles/protocol_test.dir/protocol_test.cc.o -c /home/benoit/CLionProjects/snoozraft2/tests/protocol_test.cc",
+  "file": "/home/benoit/CLionProjects/snoozraft2/tests/protocol_test.cc"
+},
+{
+  "directory": "/home/benoit/CLionProjects/snoozraft2/cmake-build-debug/tests",
+  "command": "/usr/bin/c++   -DBOOST_LOG_DYN_LINK -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0/include -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0 -I/home/benoit/.conan/data/jsonformoderncpp/3.2.0/vthiery/stable/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/include -I/home/benoit/.conan/data/yaml-cpp/0.6.2/bincrafters/stable/package/8a672d2a861a76ab51d514e456102f6443ec5709/include -I/home/benoit/CLionProjects/snoozraft2/src     -g    -std=gnu++14 -o CMakeFiles/handle_test.dir/handle_test.cc.o -c /home/benoit/CLionProjects/snoozraft2/tests/handle_test.cc",
+  "file": "/home/benoit/CLionProjects/snoozraft2/tests/handle_test.cc"
+},
+{
+  "directory": "/home/benoit/CLionProjects/snoozraft2/cmake-build-debug/tests",
+  "command": "/usr/bin/c++   -DBOOST_LOG_DYN_LINK -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0/include -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0 -I/home/benoit/.conan/data/jsonformoderncpp/3.2.0/vthiery/stable/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/include -I/home/benoit/.conan/data/yaml-cpp/0.6.2/bincrafters/stable/package/8a672d2a861a76ab51d514e456102f6443ec5709/include -I/home/benoit/CLionProjects/snoozraft2/src     -g    -std=gnu++14 -o CMakeFiles/string_utils_test.dir/string_utils_test.cc.o -c /home/benoit/CLionProjects/snoozraft2/tests/string_utils_test.cc",
+  "file": "/home/benoit/CLionProjects/snoozraft2/tests/string_utils_test.cc"
+},
+{
+  "directory": "/home/benoit/CLionProjects/snoozraft2/cmake-build-debug/tests",
+  "command": "/usr/bin/c++   -DBOOST_LOG_DYN_LINK -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0/include -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0 -I/home/benoit/.conan/data/jsonformoderncpp/3.2.0/vthiery/stable/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/include -I/home/benoit/.conan/data/yaml-cpp/0.6.2/bincrafters/stable/package/8a672d2a861a76ab51d514e456102f6443ec5709/include -I/home/benoit/CLionProjects/snoozraft2/src     -g    -std=gnu++14 -o CMakeFiles/config_test.dir/config_test.cc.o -c /home/benoit/CLionProjects/snoozraft2/tests/config_test.cc",
+  "file": "/home/benoit/CLionProjects/snoozraft2/tests/config_test.cc"
+},
+{
+  "directory": "/home/benoit/CLionProjects/snoozraft2/cmake-build-debug/tests",
+  "command": "/usr/bin/c++   -DBOOST_LOG_DYN_LINK -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0/include -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0 -I/home/benoit/.conan/data/jsonformoderncpp/3.2.0/vthiery/stable/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/include -I/home/benoit/.conan/data/yaml-cpp/0.6.2/bincrafters/stable/package/8a672d2a861a76ab51d514e456102f6443ec5709/include -I/home/benoit/CLionProjects/snoozraft2/src     -g    -std=gnu++14 -o CMakeFiles/peer_test.dir/peer_test.cc.o -c /home/benoit/CLionProjects/snoozraft2/tests/peer_test.cc",
+  "file": "/home/benoit/CLionProjects/snoozraft2/tests/peer_test.cc"
+},
+{
+  "directory": "/home/benoit/CLionProjects/snoozraft2/cmake-build-debug/tests",
+  "command": "/usr/bin/c++   -DBOOST_LOG_DYN_LINK -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0/include -I/home/benoit/CLionProjects/snoozraft2/googletest-release-1.7.0 -I/home/benoit/.conan/data/jsonformoderncpp/3.2.0/vthiery/stable/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/include -I/home/benoit/.conan/data/yaml-cpp/0.6.2/bincrafters/stable/package/8a672d2a861a76ab51d514e456102f6443ec5709/include -I/home/benoit/CLionProjects/snoozraft2/src     -g    -std=gnu++14 -o CMakeFiles/zmq_loop_test.dir/zmq_loop_test.cc.o -c /home/benoit/CLionProjects/snoozraft2/tests/zmq_loop_test.cc",
+  "file": "/home/benoit/CLionProjects/snoozraft2/tests/zmq_loop_test.cc"
+}
+]

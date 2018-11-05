@@ -43,12 +43,11 @@ public:
 
     explicit RaftFSM(Node* node);
 
-    void handle(const ZmqMessage& msg);
-
     void set_state(RaftState state);
 
-    // this is an entry that is submitted by the client
-    bool submit_entry(const std::string& entry);
+    // ------------------------------
+    // public interface for leader
+    bool append_to_log(const std::string& entry);
 
     // -----------------------------------
     // HANDLERS FOR SPECIFIC MESSAGES
@@ -59,7 +58,7 @@ public:
     void on_message(const std::string& from, const RequestVoteReplyMessage &msg) override;
 
     std::string leader_addr();
-
+    const std::string& leader_client_addr() const;
 private:
 
     // -----------------------------------
@@ -102,7 +101,10 @@ private:
     std::string voted_for_{};
     int nb_votes_{0};
 
+    // raft addr
     std::string leader_addr_;
+    // client interface addr
+    std::string client_leader_addr_{};
 
     constexpr static int minimum_nb_peers_{3};
 

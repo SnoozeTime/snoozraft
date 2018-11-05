@@ -193,7 +193,7 @@ void Node::handle_client_request() {
         ZmqMessage ok_i_am_leader{addr, "LEADER"};
         send_message(client_backend_, ok_i_am_leader);
     } else {
-        ZmqMessage not_leader{addr, "NOT_LEADER", raft_.leader_addr()};
+        ZmqMessage not_leader{addr, "NOT_LEADER", raft_.leader_client_addr()};
         send_message(client_backend_, not_leader);
     }
 
