@@ -8,6 +8,7 @@
 #include <random>
 #include "protocol/msg_handler.h"
 #include "handle.h"
+#include "persistent_state.h"
 
 #include <boost/log/sources/channel_feature.hpp>
 #include <boost/log/sources/channel_logger.hpp>

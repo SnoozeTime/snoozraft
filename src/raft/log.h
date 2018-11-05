@@ -35,6 +35,9 @@ class Log {
 
 public:
 
+    void push(LogEntry entry);
+    void push(std::string content, int term);
+
     // Overwrite everything from index
     void overwrite(size_t from, std::vector<LogEntry> entries);
 

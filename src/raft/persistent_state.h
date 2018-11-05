@@ -5,6 +5,8 @@
 #pragma once
 
 #include <string>
+#include <fstream>
+#include "raft/log.h"
 
 namespace snooz {
 
@@ -17,11 +19,29 @@ namespace snooz {
 class PersistentState {
 public:
 
+    explicit PersistentState(std::string path);
 
+    // Will persist to file and then add to log entries
+    void append_log_entry(LogEntry entry);
+    const Log& get_log() const;
+
+    // Will add special entry to log.
+    void set_term(int term);
+    int get_term() const;
+
+    void set_voted_for(std::string candidate);
+    const std::string& get_voted_for() const;
 private:
+
+    void write_to_file(const std::string& repr);
 
     /// Where the data is persisted.
     std::string file_name_;
+    std::ofstream input_;
+
+    Log log_;
+    int term_{0};
+    std::string voted_for_;
 };
 }
 

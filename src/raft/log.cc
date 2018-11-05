@@ -47,5 +47,14 @@ void Log::overwrite(size_t from, std::vector<LogEntry> entries) {
     // what happen if from is > size?
 }
 
+void Log::push(LogEntry entry) {
+    entries_.push_back(std::move(entry));
+}
+
+void Log::push(std::string content, int term) {
+    entries_.emplace_back(term, std::move(content));
+}
+
+
 
 }
