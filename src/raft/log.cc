@@ -55,6 +55,10 @@ void Log::push(std::string content, int term) {
     entries_.emplace_back(term, std::move(content));
 }
 
+size_t Log::size() const {
+    return entries_.size();
+}
+
 
 
 }

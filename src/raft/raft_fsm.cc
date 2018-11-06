@@ -45,14 +45,18 @@ RaftFSM::RaftFSM(Node* node, std::string store_filepath):
 
 void RaftFSM::before_candidate() {
     BOOST_LOG(log_) << "RAFT -> transition to candidate";
-    term_++;
+    stored_state_.set_term(stored_state_.get_term() + 1);
 
     // TODO First approximation of cluster size. Does it represent the reality?
     cluster_size_ = node_->peers().size() + 1;
     nb_votes_ = 1;
-    voted_for_ = node_->my_address();
+    stored_state_.set_voted_for(node_->my_address());
 
-    auto msg = make_message<RequestVoteRequestMessage>(term_, node_->my_address(), 0, 0);
+    auto msg = make_message<RequestVoteRequestMessage>(
+                    stored_state_.get_term(),
+                    node_->my_address(),
+                    0,
+                    0);
     send_to_peers(msg.pack());
 
     // Start timer in case it takes too much time.
@@ -62,8 +66,11 @@ void RaftFSM::before_candidate() {
 void RaftFSM::before_leader() {
     node_->loop().remove_timeout(raft_timer_);
 
-    // me!
+    // me! --- State for the leader
     leader_addr_ = node_->my_address();
+    for (auto& peer: node_->peers()) {
+        next_indexes_[peer.first] = stored_state_.get_log().size() + 1;
+    }
 
     // Send heartbeat to tell the world I am new leader
     send_hearbeat();
@@ -202,17 +209,19 @@ void RaftFSM::on_message(const std::string& from, const AppendEntriesReplyMessag
 void RaftFSM::on_message(const std::string& from, const RequestVoteRequestMessage &msg) {
 
     BOOST_LOG(log_) << "ME: " << node_->my_address() << ":received request vote request message from " << msg.candidate_id() << " addr " << from << " for term " << msg.term();
-    bool accept = voted_for_.empty();
+    bool accept = stored_state_.get_voted_for().empty();
     // First draft, just send OK idecodedf haven't voted already.
     // TODO include term condition
     if (accept) {
         BOOST_LOG(log_) << "ME: " << node_->my_address() << "Will accept request from " << msg.candidate_id();
-        voted_for_ = msg.candidate_id();
+        stored_state_.set_voted_for(msg.candidate_id());
     } else {
-        BOOST_LOG(log_) << "ME: " << node_->my_address() << "Reject request. Already voted for " << voted_for_;
+        BOOST_LOG(log_) << "ME: " << node_->my_address() << "Reject request. Already voted for " << stored_state_.get_voted_for();
     }
 
-    auto reply = make_message<RequestVoteReplyMessage>(term_, accept);
+    auto reply = make_message<RequestVoteReplyMessage>(
+                    stored_state_.get_term(),
+                    accept);
     send_to_peer(msg.candidate_id(), reply.pack());
 }
 
@@ -258,7 +267,7 @@ void RaftFSM::send_hearbeat() {
     //                          std::vector<std::tuple<int, std::string>> entries,
       //                        int leader_commit)
     auto msg = make_message<AppendEntriesRequestMessage>(
-            term_, // current term
+            stored_state_.get_term(), // current term
             node_->my_client_address(), // Address of the public interface to the leader.
             0,
             0,
@@ -280,10 +289,27 @@ bool RaftFSM::append_to_log(const std::string &entry) {
         BOOST_LOG(log_) << "Submitted entry to node, but is not leader...";
         return false;
     }
-    
+
     // First add to the log !
+    stored_state_.append_log_entry(LogEntry(stored_state_.get_term(), entry));
 
     // Then, send a message to everybody. Everybody should send either ok or not OK + reason
+    auto log = stored_state_.get_log();
+    for (auto& peer: node_->peers()) {
+        // For each peers, need to check what we assume their last index is. If
+        // not found, should default to lastLogIndex+1
+        // Will update on AppendEntriesReply.
+        std::vector<std::tuple<int, std::string>> entries;
+        auto from_index = next_indexes_[peer.first];
+
+        // btw, index starts at 1 and finish at size
+        for (int i = from_index; i <= log.size(); i++) {
+            entries.emplace_back(std::make_tuple(
+                                    log[i].term(),
+                                    log[i].content()));
+        }
+    }
+
     return true;
 }
 

@@ -43,6 +43,8 @@ public:
 
     // Index begins at 1!
     const LogEntry& operator[](size_t index) const; //optional
+
+    size_t size() const;
 private:
 
     std::vector<LogEntry> entries_;

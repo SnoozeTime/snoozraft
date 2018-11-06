@@ -99,10 +99,8 @@ private:
     PersistentState stored_state_;
 
     int cluster_size_{0};
-    int term_{0};
     // For election
     // empty or the one that we have voted for.
-    std::string voted_for_{};
     int nb_votes_{0};
 
     // raft addr
