@@ -97,6 +97,10 @@ void EnvConfigImpl::validate() {
         throw snooz::ConfigException("There are no bootstrap nodes. Please add at least one node with " + std::string(BOOTSTRAP_NODES_ENV));
     }
 
+    if (client_port_.empty()) {
+        throw new snooz::ConfigException("Client port is not specified. Please set " + std::string(CLIENT_PORT_ENV));
+    }
+
     if (store_path_.empty()) {
         throw snooz::ConfigException("No store path set. Please set the path with " + std::string(STORE_PATH_ENV));
     }
@@ -119,7 +123,12 @@ std::string EnvConfigImpl::host() const {
 }
 
 std::string EnvConfigImpl::client_port() const {
-    return std::__cxx11::string();
+    return client_port_;
+}
+
+std::string EnvConfigImpl::store_filepath() const {
+    return store_path_;
 }
 
 }
+
