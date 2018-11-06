@@ -42,7 +42,7 @@ enum class RaftState {
 class RaftFSM: public MessageHandler {
 public:
 
-    explicit RaftFSM(Node* node);
+    explicit RaftFSM(Node* node, std::string store_filepath);
 
     void set_state(RaftState state);
 
@@ -94,6 +94,9 @@ private:
     Node* node_;
 
     RaftState state_{RaftState::WAITING};
+
+    // state that needs to be persisted on storage
+    PersistentState stored_state_;
 
     int cluster_size_{0};
     int term_{0};

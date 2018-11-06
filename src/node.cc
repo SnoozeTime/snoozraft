@@ -24,7 +24,7 @@ Node::Node(Config conf):
     log_(boost::log::keywords::channel = "NODE"),
     conf_{std::move(conf)},
     my_address_{"tcp://" + conf_.host() + ":" + conf_.port()},
-    raft_{this},
+    raft_{this, "store"},
     frontend_{zmq_context_, conf_.client_port()},
     frontend_thread_([this] { frontend_.run();})
     {

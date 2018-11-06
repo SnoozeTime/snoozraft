@@ -56,6 +56,10 @@ std::string JsonConfigImpl::client_port() const {
     return json_["client"]["port"];
 }
 
+std::string JsonConfigImpl::store_filepath() const {
+    return json_["node"]["store_path"];
+}
+
 // ====================================================
 // Configuration from environment variables. Easier to
 // use with Docker
@@ -65,11 +69,13 @@ constexpr char EnvConfigImpl::PORT_ENV[];
 constexpr char EnvConfigImpl::CLIENT_PORT_ENV[];
 constexpr char EnvConfigImpl::IS_BOOTSTRAP_ENV[];
 constexpr char EnvConfigImpl::BOOTSTRAP_NODES_ENV[];
+constexpr char EnvConfigImpl::STORE_PATH_ENV[];
 
 EnvConfigImpl::EnvConfigImpl():
     port_(snooz::getenv(PORT_ENV)),
     host_(snooz::getenv(HOST_ENV)),
-    client_port_(snooz::getenv(CLIENT_PORT_ENV)){
+    client_port_(snooz::getenv(CLIENT_PORT_ENV)),
+    store_path_(snooz::getenv(STORE_PATH_ENV)) {
 
     auto is_bootstrap_str = snooz::getenv(std::string(IS_BOOTSTRAP_ENV));
     is_bootstrap_ = is_bootstrap_str == "Y" || is_bootstrap_str == "True";
@@ -89,6 +95,10 @@ void EnvConfigImpl::validate() {
 
     if (bootstrap_nodes_.empty()) {
         throw snooz::ConfigException("There are no bootstrap nodes. Please add at least one node with " + std::string(BOOTSTRAP_NODES_ENV));
+    }
+
+    if (store_path_.empty()) {
+        throw snooz::ConfigException("No store path set. Please set the path with " + std::string(STORE_PATH_ENV));
     }
 }
 

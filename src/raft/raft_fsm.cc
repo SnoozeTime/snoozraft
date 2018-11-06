@@ -18,9 +18,10 @@ using namespace std::literals;
 
 namespace snooz {
 
-RaftFSM::RaftFSM(Node* node):
+RaftFSM::RaftFSM(Node* node, std::string store_filepath):
     log_(boost::log::keywords::channel = "RAFT"),
-    node_(node) {
+    node_(node),
+    stored_state_{store_filepath} {
 
     UNUSED(commit_index_);
     UNUSED(last_applied_);

@@ -45,6 +45,10 @@ public:
     ///
     /// \return the port of the client frontend
     virtual std::string client_port() const = 0;
+
+    ///
+    /// \return the path to the storage file
+    virtual std::string store_filepath() const = 0;
 };
 
 class Config {
@@ -83,6 +87,11 @@ public:
     }
 
 
+    ///
+    /// \return the path to the storage file
+    std::string store_filepath() const {
+        return impl_->store_filepath();
+    }
 private:
 
 
@@ -138,6 +147,10 @@ public:
 
     std::string client_port() const override;
 
+    ///
+    /// \return the path to the storage file
+    std::string store_filepath() const override;
+
 private:
     nlohmann::json json_;
 };
@@ -152,6 +165,7 @@ public:
     constexpr static char CLIENT_PORT_ENV[] = "SNOOZ_CLIENT_PORT";
     constexpr static char IS_BOOTSTRAP_ENV[] = "SNOOZ_BOOTSTRAP";
     constexpr static char BOOTSTRAP_NODES_ENV[] = "SNOOZ_BOOTSTRAP_NODES";
+    constexpr static char STORE_PATH_ENV[] = "SNOOZ_STORE_PATH";
 
     EnvConfigImpl();
 
@@ -175,6 +189,12 @@ public:
     std::string host() const override;
 
     std::string client_port() const override;
+
+    ///
+    /// \return the path to the storage file
+    std::string store_filepath() const override;
+
+
 private:
     // Comma separated.
     std::vector<std::string> bootstrap_nodes_;
@@ -182,6 +202,7 @@ private:
     std::string port_;
     std::string host_;
     std::string client_port_;
+    std::string store_path_;
 };
 
 
