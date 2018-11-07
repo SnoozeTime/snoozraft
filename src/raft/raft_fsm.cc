@@ -23,7 +23,6 @@ RaftFSM::RaftFSM(Node* node, std::string store_filepath):
     node_(node),
     stored_state_{store_filepath} {
 
-    UNUSED(commit_index_);
     UNUSED(last_applied_);
     //auto random_integer = uni(rng);
     //BOOST_LOG(log_)(info) << "Will wait " << random_integer << "before timeout";
@@ -191,9 +190,18 @@ void RaftFSM::on_message(const std::string& from, const AppendEntriesRequestMess
 
         client_leader_addr_ = msg.leader_id();
 
-        // check the term.
-        // Check previous log index.
+        if (!msg.entries().empty()) {
+            BOOST_LOG(log_) << "Received entries to append to log";
+            // check the term.
+            // Check previous log index.
+            BOOST_LOG(log_) << "Term in msg " << msg.term();
+            BOOST_LOG(log_) << "prev log index " << msg.prev_log_index();
+            BOOST_LOG(log_) << "prev log term" << msg.prev_log_term();
 
+            for (auto& entry : msg.entries()) {
+                BOOST_LOG(log_) << std::get<0>(entry) << " " << std::get<1>(entry);
+            }
+        }
 
     } else if (state_ == RaftState::CANDIDATE) {
         leader_addr_ = from;
@@ -302,12 +310,24 @@ bool RaftFSM::append_to_log(const std::string &entry) {
         std::vector<std::tuple<int, std::string>> entries;
         auto from_index = next_indexes_[peer.first];
 
+        BOOST_LOG(log_) << "will send log to " << peer.first << " from index " << from_index;
         // btw, index starts at 1 and finish at size
         for (int i = from_index; i <= log.size(); i++) {
             entries.emplace_back(std::make_tuple(
                                     log[i].term(),
                                     log[i].content()));
-        }
+                    }
+        int prev_log_term = from_index > 1 ? log[from_index-1].term() : 0;
+        int prev_log_index = from_index - 1;
+        auto msg = make_message<AppendEntriesRequestMessage>(
+                        stored_state_.get_term(), // current term
+                        node_->my_client_address(),
+                        prev_log_index,
+                        prev_log_term,
+                        entries,
+                        commit_index_);
+        peer.second.send(msg.pack());
+
     }
 
     return true;
