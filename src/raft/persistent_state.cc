@@ -22,6 +22,11 @@ void PersistentState::append_log_entry(LogEntry entry) {
     log_.push(entry);
 }
 
+Log& PersistentState:: get_log() {
+    return log_;
+}
+
+
 const Log& PersistentState:: get_log() const {
     return log_;
 }

@@ -24,6 +24,7 @@ public:
     // Will persist to file and then add to log entries
     void append_log_entry(LogEntry entry);
     const Log& get_log() const;
+    Log& get_log();
 
     // Will add special entry to log.
     void set_term(int term);

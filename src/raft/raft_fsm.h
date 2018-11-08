@@ -83,6 +83,8 @@ private:
     void send_to_peer(const std::string& peer_id, const ZmqMessage& msg);
 
     void send_hearbeat();
+    void send_ok_reply(const std::string& target);
+    void send_nok_reply(const std::string& target);
 
     // Logger for this class
     boost::log::sources::channel_logger<> log_;

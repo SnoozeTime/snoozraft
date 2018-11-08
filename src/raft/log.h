@@ -39,7 +39,7 @@ public:
     void push(std::string content, int term);
 
     // Overwrite everything from index
-    void overwrite(size_t from, std::vector<LogEntry> entries);
+    void overwrite(size_t from, std::vector<std::tuple<int, std::string>> entries);
 
     // Index begins at 1!
     const LogEntry& operator[](size_t index) const; //optional

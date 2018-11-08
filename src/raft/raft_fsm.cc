@@ -69,6 +69,7 @@ void RaftFSM::before_leader() {
     leader_addr_ = node_->my_address();
     for (auto& peer: node_->peers()) {
         next_indexes_[peer.first] = stored_state_.get_log().size() + 1;
+        match_indexes_[peer.first] = 0; 
     }
 
     // Send heartbeat to tell the world I am new leader
@@ -195,19 +196,55 @@ void RaftFSM::on_message(const std::string& from, const AppendEntriesRequestMess
             // check the term.
             // Check previous log index.
             BOOST_LOG(log_) << "Term in msg " << msg.term();
+            if (msg.term() < stored_state_.get_term()) {
+                // Node that sent this message is not the leader anymore.
+                send_nok_reply(from);
+                return;
+            }
+
             BOOST_LOG(log_) << "prev log index " << msg.prev_log_index();
             BOOST_LOG(log_) << "prev log term" << msg.prev_log_term();
+            // Need to check if our previous log index match with what was sent.
+            // if nothing, always accept what comes from the server?
+            auto& entry_log = stored_state_.get_log();
+            if (msg.prev_log_index() == 0) {
+                // Even if entries, we overwrite. This is the first record in the
+                // log
+                BOOST_LOG(log_) << "Prev log index is 0. Overwrite from there";
+                entry_log.overwrite(msg.prev_log_index()+1, msg.entries());
+                send_ok_reply(from);
+                return;
+            } else {
+                // Now, if the prev  index an prev term are matching, we can
+                // append from there. If not matching, we just send back 'no'
+                if (entry_log.size() < msg.prev_log_index()) {
+                    BOOST_LOG(log_) << "No entry at " << msg.prev_log_index();
+                    send_nok_reply(from);
+                    return;
+                }
 
-            for (auto& entry : msg.entries()) {
-                BOOST_LOG(log_) << std::get<0>(entry) << " " << std::get<1>(entry);
+                if (entry_log[msg.prev_log_index()].term() != msg.prev_log_term()) {
+                    BOOST_LOG(log_) << "Previous entry term does not match msg prev_term";
+                    BOOST_LOG(log_) << entry_log[msg.prev_log_index()].term() << " VS " << msg.prev_log_term();
+                    send_nok_reply(from);
+                    return;
+                }
+
+                // Here we should be ok to overwrite.
+                entry_log.overwrite(msg.prev_log_index()+1, msg.entries());
+                send_ok_reply(from);
+                return;
             }
         }
 
+        send_ok_reply(from);
+        return;
     } else if (state_ == RaftState::CANDIDATE) {
         leader_addr_ = from;
         BOOST_LOG(log_) << "Candidates receive AppendEntriesRequest from leader. Go back to being FOLLOWER";
         client_leader_addr_ = msg.leader_id();
         set_state(RaftState::FOLLOWER);
+        return;
     }
 }
 
@@ -332,6 +369,17 @@ bool RaftFSM::append_to_log(const std::string &entry) {
 
     return true;
 }
+inline void RaftFSM::send_ok_reply(const std::string& target) {
+    auto msg = make_message<AppendEntriesReplyMessage>(stored_state_.get_term(), true);
+    send_to_peer(target, msg.pack());
+}
+
+inline void RaftFSM::send_nok_reply(const std::string& target) {
+    auto msg = make_message<AppendEntriesReplyMessage>(stored_state_.get_term(), false);
+    send_to_peer(target, msg.pack());
+}
 
 
+
+// END OF NAMESPACE
 }
