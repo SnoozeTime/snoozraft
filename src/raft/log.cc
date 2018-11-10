@@ -4,6 +4,7 @@
 
 #include "log.h"
 #include <sstream>
+#include <tuple>
 #include <string_utils.h>
 #include <cassert>
 
@@ -43,8 +44,20 @@ const LogEntry &Log::operator[](size_t index) const {
     return entries_[index-1]; // boooom
 }
 
-void Log::overwrite(size_t from, std::vector<LogEntry> entries) {
+void Log::overwrite(size_t from, const std::vector<std::tuple<int, std::string>>& entries) {
     // what happen if from is > size?
+    assert(from <= entries_.size());
+    assert(from >= 1);
+
+    // From = 1 means we need to overwrite from index 0 in the vector.
+
+    // First remove all the entries from index from, then add the new ones
+    entries_.erase(entries_.begin()+from-1,
+                   entries_.end());
+
+    for (const auto& entry: entries) {
+        push(std::get<1>(entry), std::get<0>(entry));
+    }
 }
 
 void Log::push(LogEntry entry) {

@@ -11,6 +11,7 @@ TEST(persistent, writing) {
         state.append_log_entry(snooz::LogEntry(0, "hello"));
         state.set_term(45);
         state.set_voted_for("benoit");
+        state.write();
     }
 
     // Now read the file

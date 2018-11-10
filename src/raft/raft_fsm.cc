@@ -44,7 +44,7 @@ RaftFSM::RaftFSM(Node* node, std::string store_filepath):
 
 void RaftFSM::before_candidate() {
     BOOST_LOG(log_) << "RAFT -> transition to candidate";
-    stored_state_.set_term(stored_state_.get_term() + 1);
+    stored_state_.set_term(stored_state_.term() + 1);
 
     // TODO First approximation of cluster size. Does it represent the reality?
     cluster_size_ = node_->peers().size() + 1;
@@ -52,7 +52,7 @@ void RaftFSM::before_candidate() {
     stored_state_.set_voted_for(node_->my_address());
 
     auto msg = make_message<RequestVoteRequestMessage>(
-                    stored_state_.get_term(),
+                    stored_state_.term(),
                     node_->my_address(),
                     0,
                     0);
@@ -196,7 +196,7 @@ void RaftFSM::on_message(const std::string& from, const AppendEntriesRequestMess
             // check the term.
             // Check previous log index.
             BOOST_LOG(log_) << "Term in msg " << msg.term();
-            if (msg.term() < stored_state_.get_term()) {
+            if (msg.term() < stored_state_.term()) {
                 // Node that sent this message is not the leader anymore.
                 send_nok_reply(from);
                 return;
@@ -207,14 +207,8 @@ void RaftFSM::on_message(const std::string& from, const AppendEntriesRequestMess
             // Need to check if our previous log index match with what was sent.
             // if nothing, always accept what comes from the server?
             auto& entry_log = stored_state_.get_log();
-            if (msg.prev_log_index() == 0) {
-                // Even if entries, we overwrite. This is the first record in the
-                // log
-                BOOST_LOG(log_) << "Prev log index is 0. Overwrite from there";
-                entry_log.overwrite(msg.prev_log_index()+1, msg.entries());
-                send_ok_reply(from);
-                return;
-            } else {
+
+            if (msg.prev_log_index() > 0) {
                 // Now, if the prev  index an prev term are matching, we can
                 // append from there. If not matching, we just send back 'no'
                 if (entry_log.size() < msg.prev_log_index()) {
@@ -229,12 +223,11 @@ void RaftFSM::on_message(const std::string& from, const AppendEntriesRequestMess
                     send_nok_reply(from);
                     return;
                 }
-
-                // Here we should be ok to overwrite.
-                entry_log.overwrite(msg.prev_log_index()+1, msg.entries());
-                send_ok_reply(from);
-                return;
             }
+
+            entry_log.overwrite(msg.prev_log_index()+1, msg.entries());
+            send_ok_reply(from);
+            return;
         }
 
         send_ok_reply(from);
@@ -254,18 +247,18 @@ void RaftFSM::on_message(const std::string& from, const AppendEntriesReplyMessag
 void RaftFSM::on_message(const std::string& from, const RequestVoteRequestMessage &msg) {
 
     BOOST_LOG(log_) << "ME: " << node_->my_address() << ":received request vote request message from " << msg.candidate_id() << " addr " << from << " for term " << msg.term();
-    bool accept = stored_state_.get_voted_for().empty();
+    bool accept = stored_state_.voted_for().empty();
     // First draft, just send OK idecodedf haven't voted already.
     // TODO include term condition
     if (accept) {
         BOOST_LOG(log_) << "ME: " << node_->my_address() << "Will accept request from " << msg.candidate_id();
         stored_state_.set_voted_for(msg.candidate_id());
     } else {
-        BOOST_LOG(log_) << "ME: " << node_->my_address() << "Reject request. Already voted for " << stored_state_.get_voted_for();
+        BOOST_LOG(log_) << "ME: " << node_->my_address() << "Reject request. Already voted for " << stored_state_.voted_for();
     }
 
     auto reply = make_message<RequestVoteReplyMessage>(
-                    stored_state_.get_term(),
+                    stored_state_.term(),
                     accept);
     send_to_peer(msg.candidate_id(), reply.pack());
 }
@@ -312,7 +305,7 @@ void RaftFSM::send_hearbeat() {
     //                          std::vector<std::tuple<int, std::string>> entries,
       //                        int leader_commit)
     auto msg = make_message<AppendEntriesRequestMessage>(
-            stored_state_.get_term(), // current term
+            stored_state_.term(), // current term
             node_->my_client_address(), // Address of the public interface to the leader.
             0,
             0,
@@ -336,7 +329,7 @@ bool RaftFSM::append_to_log(const std::string &entry) {
     }
 
     // First add to the log !
-    stored_state_.append_log_entry(LogEntry(stored_state_.get_term(), entry));
+    stored_state_.append_log_entry(LogEntry(stored_state_.term(), entry));
 
     // Then, send a message to everybody. Everybody should send either ok or not OK + reason
     auto log = stored_state_.get_log();
@@ -357,7 +350,7 @@ bool RaftFSM::append_to_log(const std::string &entry) {
         int prev_log_term = from_index > 1 ? log[from_index-1].term() : 0;
         int prev_log_index = from_index - 1;
         auto msg = make_message<AppendEntriesRequestMessage>(
-                        stored_state_.get_term(), // current term
+                        stored_state_.term(), // current term
                         node_->my_client_address(),
                         prev_log_index,
                         prev_log_term,
@@ -370,12 +363,12 @@ bool RaftFSM::append_to_log(const std::string &entry) {
     return true;
 }
 inline void RaftFSM::send_ok_reply(const std::string& target) {
-    auto msg = make_message<AppendEntriesReplyMessage>(stored_state_.get_term(), true);
+    auto msg = make_message<AppendEntriesReplyMessage>(stored_state_.term(), true);
     send_to_peer(target, msg.pack());
 }
 
 inline void RaftFSM::send_nok_reply(const std::string& target) {
-    auto msg = make_message<AppendEntriesReplyMessage>(stored_state_.get_term(), false);
+    auto msg = make_message<AppendEntriesReplyMessage>(stored_state_.term(), false);
     send_to_peer(target, msg.pack());
 }
 

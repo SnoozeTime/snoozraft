@@ -4,21 +4,34 @@
 
 #include "persistent_state.h"
 #include "error.h"
+using nlohmann::json;
 
 namespace snooz {
-    
+
 PersistentState::PersistentState(std::string path):
     file_name_(path),
     input_(path) {
     if (!input_.is_open()) {
         throw ConfigException("Error opening persistent state file: " + file_name_);
     }
+
+    data_["term"] = 0;
+    data_["voted_for"] = "";
+    data_["log"] = json::array();
+}
+
+void PersistentState::write() {
+    // always use the last version of log.
+    data_["log"].clear();
+    for (auto& entry : log_.entries()) {
+        data_["log"].push_back(entry.to_string());
+    }
+    std::ofstream ofs(file_name_, std::ios::out | std::ios::trunc); // remove all :D
+    ofs << data_.dump();
 }
 
 // Will persist to file and then add to log entries
 void PersistentState::append_log_entry(LogEntry entry) {
-    // What happened if failed to write to file?
-    write_to_file("LOG:" + entry.to_string());
     log_.push(entry);
 }
 
@@ -26,33 +39,25 @@ Log& PersistentState:: get_log() {
     return log_;
 }
 
-
 const Log& PersistentState:: get_log() const {
     return log_;
 }
 
 // Will add special entry to log.
 void PersistentState::set_term(int term) {
-    write_to_file("TERM:" + std::to_string(term));
-    term_ = term;
+    data_["term"] = term;
 }
-    
-int PersistentState::get_term() const {
-    return term_;
+
+int PersistentState::term() const {
+    return data_["term"];
 }
 
 void PersistentState::set_voted_for(std::string candidate) {
-    write_to_file("VOTE:" + candidate + " for term " + std::to_string(term_));
-    voted_for_ = candidate;
+    data_["voted_for"] = candidate;
 }
 
-const std::string& PersistentState::get_voted_for() const {
-    return voted_for_;
-}
-
-
-void PersistentState::write_to_file(const std::string& repr) {
-    input_ << repr << '\n';
+std::string PersistentState::voted_for() const {
+    return data_["voted_for"];
 }
 
 }
