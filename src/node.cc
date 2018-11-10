@@ -24,7 +24,7 @@ Node::Node(Config conf):
     log_(boost::log::keywords::channel = "NODE"),
     conf_{std::move(conf)},
     my_address_{"tcp://" + conf_.host() + ":" + conf_.port()},
-    raft_{this, "store"},
+    raft_{this, "store"+conf_.host()+conf_.port()},
     frontend_{zmq_context_, conf_.client_port()},
     frontend_thread_([this] { frontend_.run();})
     {
@@ -191,6 +191,10 @@ void Node::handle_client_request() {
     if (raft_.leader_addr() == my_address()) {
         // process request
         ZmqMessage ok_i_am_leader{addr, "LEADER"};
+
+        raft_.append_to_log(frames[1]);
+        // We need to keep a list of addr -> requests (index/term pair)
+        // in order to know when to send the answer to the client...
         send_message(client_backend_, ok_i_am_leader);
     } else {
         ZmqMessage not_leader{addr, "NOT_LEADER", raft_.leader_client_addr()};

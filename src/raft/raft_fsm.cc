@@ -44,12 +44,13 @@ RaftFSM::RaftFSM(Node* node, std::string store_filepath):
 
 void RaftFSM::before_candidate() {
     BOOST_LOG(log_) << "RAFT -> transition to candidate";
-    stored_state_.set_term(stored_state_.term() + 1);
+    stored_state_.set_term(stored_state_.term() + 1); // will write a bit below
 
     // TODO First approximation of cluster size. Does it represent the reality?
     cluster_size_ = node_->peers().size() + 1;
     nb_votes_ = 1;
     stored_state_.set_voted_for(node_->my_address());
+    stored_state_.write();
 
     auto msg = make_message<RequestVoteRequestMessage>(
                     stored_state_.term(),
@@ -226,6 +227,7 @@ void RaftFSM::on_message(const std::string& from, const AppendEntriesRequestMess
             }
 
             entry_log.overwrite(msg.prev_log_index()+1, msg.entries());
+            stored_state_.write();
             send_ok_reply(from);
             return;
         }
@@ -242,6 +244,8 @@ void RaftFSM::on_message(const std::string& from, const AppendEntriesRequestMess
 }
 
 void RaftFSM::on_message(const std::string& from, const AppendEntriesReplyMessage &msg) {
+    // If yes, this is happy days and we can update the leader volatile state.
+    //
 }
 
 void RaftFSM::on_message(const std::string& from, const RequestVoteRequestMessage &msg) {
@@ -253,6 +257,7 @@ void RaftFSM::on_message(const std::string& from, const RequestVoteRequestMessag
     if (accept) {
         BOOST_LOG(log_) << "ME: " << node_->my_address() << "Will accept request from " << msg.candidate_id();
         stored_state_.set_voted_for(msg.candidate_id());
+        stored_state_.write();
     } else {
         BOOST_LOG(log_) << "ME: " << node_->my_address() << "Reject request. Already voted for " << stored_state_.voted_for();
     }
@@ -330,6 +335,7 @@ bool RaftFSM::append_to_log(const std::string &entry) {
 
     // First add to the log !
     stored_state_.append_log_entry(LogEntry(stored_state_.term(), entry));
+    stored_state_.write();
 
     // Then, send a message to everybody. Everybody should send either ok or not OK + reason
     auto log = stored_state_.get_log();

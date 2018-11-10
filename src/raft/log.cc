@@ -46,7 +46,7 @@ const LogEntry &Log::operator[](size_t index) const {
 
 void Log::overwrite(size_t from, const std::vector<std::tuple<int, std::string>>& entries) {
     // what happen if from is > size?
-    assert(from <= entries_.size());
+    assert(from-1 <= entries_.size());
     assert(from >= 1);
 
     // From = 1 means we need to overwrite from index 0 in the vector.
